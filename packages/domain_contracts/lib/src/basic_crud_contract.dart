@@ -12,7 +12,7 @@ import 'package:fpdart/fpdart.dart';
 /// Optional [UnitOfWork] parameter supports transactional operations.
 abstract class BasicCrudContract<T, THandle> {
   /// Creates a new item in the repository.
-  TaskEither<Failure, T> create({required T item, UnitOfWork? txn});
+  TaskEither<Failure, T> create({required T item, UnitOfWork? unitOfWork});
 
   /// Retrieves all items from the repository.
   TaskEither<Failure, List<T>> getAll();
@@ -21,24 +21,27 @@ abstract class BasicCrudContract<T, THandle> {
   TaskEither<Failure, T> getByHandle({required THandle handle});
 
   /// Deletes all items from the repository.
-  TaskEither<Failure, Unit> deleteAll({UnitOfWork? txn});
+  TaskEither<Failure, Unit> deleteAll({UnitOfWork? unitOfWork});
 
   /// Deletes an item by its instance.
   TaskEither<Failure, Unit> deleteByHandle({
     required THandle handle,
-    UnitOfWork? txn,
+    UnitOfWork? unitOfWork,
   });
 
   /// Updates an existing item in the repository.
-  TaskEither<Failure, T> update({required T item, UnitOfWork? txn});
+  TaskEither<Failure, T> update({required T item, UnitOfWork? unitOfWork});
 
   /// Saves an item (create if new, update if exists).
   /// This is a convenience method providing upsert semantics.
-  TaskEither<Failure, T> save({required T item, UnitOfWork? txn});
+  TaskEither<Failure, T> save({required T item, UnitOfWork? unitOfWork});
 
   /// Deletes an item by its handle.
   /// Convenience method that delegates to deleteByHandle.
-  TaskEither<Failure, Unit> delete({required THandle handle, UnitOfWork? txn});
+  TaskEither<Failure, Unit> delete({
+    required THandle handle,
+    UnitOfWork? unitOfWork,
+  });
 
   /// Retrieves all items from the repository.
   /// Alias for getAll() to support both naming conventions.
