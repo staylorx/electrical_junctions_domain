@@ -10,7 +10,7 @@ export 'src/repositories/manufacturer_repository.dart';
 export 'src/repositories/device_specification_repository.dart';
 export 'src/repositories/device_specification_schema_service.dart';
 export 'src/import_validator.dart';
-export 'src/unit_of_work_repository.dart';
+export 'src/repositories/unit_of_work_repository.dart';
 
 export 'src/contract_failures.dart';
 export 'src/failures/specification_failure.dart';
