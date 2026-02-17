@@ -1,0 +1,20 @@
+name: electrical_junctions_usecases
+description: "Domain use cases layer for Electrical Junctions application."
+version: "0.0.1"
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0-0 <4.0.0"
+
+dependencies:
+  fpdart: ^1.2.0
+  electrical_junctions_contracts: any
+  electrical_junctions_entities: any
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.28.0
+  shouldly: ^0.5.0+1
+  mocktail: ^1.0.3
+  melos: ^7.4.0

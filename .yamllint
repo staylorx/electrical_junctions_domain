@@ -1,0 +1,8 @@
+extends: default
+
+rules:
+  # Allow duplicate keys in negative test cases
+  key-duplicates: disable
+
+ignore: |
+  assets/negative-cases/
