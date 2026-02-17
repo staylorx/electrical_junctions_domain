@@ -5,6 +5,7 @@ import 'package:fpdart/fpdart.dart';
 
 // Generate mocks
 class MockDeviceRepository extends Mock implements DeviceRepository {}
+
 class MockHandleGenerator extends Mock implements HandleGenerator {}
 
 void main() {
@@ -13,18 +14,20 @@ void main() {
   late MockHandleGenerator mockHandleGenerator;
 
   setUpAll(() {
-    registerFallbackValue(Device(
-      handle: DeviceHandle('fallback'),
-      deviceSpecification: DeviceSpecification(
-        handle: DeviceSpecificationHandle('fallback'),
-        typeId: 'fallback',
-        modelNumber: 'fallback',
-        manufacturer: Manufacturer(
-          handle: ManufacturerHandle('fallback'),
-          name: 'fallback',
+    registerFallbackValue(
+      Device(
+        handle: DeviceHandle('fallback'),
+        deviceSpecification: DeviceSpecification(
+          handle: DeviceSpecificationHandle('fallback'),
+          typeId: 'fallback',
+          modelNumber: 'fallback',
+          manufacturer: Manufacturer(
+            handle: ManufacturerHandle('fallback'),
+            name: 'fallback',
+          ),
         ),
       ),
-    ));
+    );
   });
 
   setUp(() {
@@ -54,15 +57,16 @@ void main() {
     );
 
     setUp(() {
-      when(() => mockHandleGenerator.generateDeviceHandle()).thenReturn(deviceHandle);
-      when(() => mockDeviceRepository.create(item: any(named: 'item')))
-          .thenReturn(TaskEither.right(expectedDevice));
+      when(
+        () => mockHandleGenerator.generateDeviceHandle(),
+      ).thenReturn(deviceHandle);
+      when(
+        () => mockDeviceRepository.create(item: any(named: 'item')),
+      ).thenReturn(TaskEither.right(expectedDevice));
     });
 
     test('should create device with required fields', () async {
-      final result = await useCase(
-        deviceSpecification: deviceSpec,
-      ).run();
+      final result = await useCase(deviceSpecification: deviceSpec).run();
 
       result.fold(
         (failure) => fail('Expected success, got failure: $failure'),
@@ -75,7 +79,9 @@ void main() {
       );
 
       verify(() => mockHandleGenerator.generateDeviceHandle()).called(1);
-      verify(() => mockDeviceRepository.create(item: any(named: 'item'))).called(1);
+      verify(
+        () => mockDeviceRepository.create(item: any(named: 'item')),
+      ).called(1);
     });
 
     test('should create device with all fields', () async {
@@ -98,12 +104,11 @@ void main() {
 
     test('should return failure when repository create fails', () async {
       final failure = DatastoreFailure('Database error');
-      when(() => mockDeviceRepository.create(item: any(named: 'item')))
-          .thenReturn(TaskEither.left(failure));
+      when(
+        () => mockDeviceRepository.create(item: any(named: 'item')),
+      ).thenReturn(TaskEither.left(failure));
 
-      final result = await useCase(
-        deviceSpecification: deviceSpec,
-      ).run();
+      final result = await useCase(deviceSpecification: deviceSpec).run();
 
       result.fold(
         (actualFailure) => expect(actualFailure, equals(failure)),

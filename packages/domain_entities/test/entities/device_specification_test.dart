@@ -11,10 +11,7 @@ void main() {
     setUp(() {
       testHandle = DeviceSpecificationHandle('spec-123');
       mfgHandle = ManufacturerHandle('mfg-456');
-      testManufacturer = Manufacturer(
-        handle: mfgHandle,
-        name: 'Square D',
-      );
+      testManufacturer = Manufacturer(handle: mfgHandle, name: 'Square D');
     });
 
     group('When creating a device specification', () {

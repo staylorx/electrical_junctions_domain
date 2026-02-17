@@ -13,8 +13,8 @@ class StageImportUseCase {
   StageImportUseCase({
     required ImportValidator entityValidator,
     required StagingFacadeFactory stagingFacadeFactory,
-  })  : _entityValidator = entityValidator,
-        _stagingFacadeFactory = stagingFacadeFactory;
+  }) : _entityValidator = entityValidator,
+       _stagingFacadeFactory = stagingFacadeFactory;
 
   /// Stages the parsed import data.
   ///
@@ -54,11 +54,13 @@ class StageImportUseCase {
       // Build summary
       final summary = _buildSummary(parsingResult.model);
 
-      return Right(ImportResult(
-        issues: issues,
-        summary: summary,
-        stagingFacade: stagingFacade,
-      ));
+      return Right(
+        ImportResult(
+          issues: issues,
+          summary: summary,
+          stagingFacade: stagingFacade,
+        ),
+      );
     });
   }
 
@@ -69,7 +71,9 @@ class StageImportUseCase {
   ) async {
     // Save manufacturers
     for (final mfg in model.manufacturers) {
-      final result = await facade.repositories.manufacturer.create(item: mfg).run();
+      final result = await facade.repositories.manufacturer
+          .create(item: mfg)
+          .run();
       result.match(
         (failure) => issues.add(
           ValidationIssue(
@@ -99,12 +103,15 @@ class StageImportUseCase {
 
     // Save device specifications
     for (final spec in model.deviceSpecifications) {
-      final result = await facade.repositories.deviceSpecification.create(item: spec).run();
+      final result = await facade.repositories.deviceSpecification
+          .create(item: spec)
+          .run();
       result.match(
         (failure) => issues.add(
           ValidationIssue(
             severity: ValidationSeverity.error,
-            message: 'Failed to stage device specification: ${spec.modelNumber}',
+            message:
+                'Failed to stage device specification: ${spec.modelNumber}',
             context: failure.message,
           ),
         ),

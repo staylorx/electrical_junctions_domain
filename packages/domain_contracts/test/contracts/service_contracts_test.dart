@@ -35,11 +35,28 @@ void main() {
 
     test('HandleGenerator methods return correct handle types', () {
       // These are compile-time checks
-      expect(HandleGenerator, hasMethodReturning<DeviceHandle>('generateDeviceHandle'));
-      expect(HandleGenerator, hasMethodReturning<ManufacturerHandle>('generateManufacturerHandle'));
-      expect(HandleGenerator, hasMethodReturning<LocateHandle>('generateLocateHandle'));
-      expect(HandleGenerator, hasMethodReturning<DeviceSpecificationHandle>('generateDeviceSpecificationHandle'));
-      expect(HandleGenerator, hasMethodReturning<CircuitHandle>('generateCircuitHandle'));
+      expect(
+        HandleGenerator,
+        hasMethodReturning<DeviceHandle>('generateDeviceHandle'),
+      );
+      expect(
+        HandleGenerator,
+        hasMethodReturning<ManufacturerHandle>('generateManufacturerHandle'),
+      );
+      expect(
+        HandleGenerator,
+        hasMethodReturning<LocateHandle>('generateLocateHandle'),
+      );
+      expect(
+        HandleGenerator,
+        hasMethodReturning<DeviceSpecificationHandle>(
+          'generateDeviceSpecificationHandle',
+        ),
+      );
+      expect(
+        HandleGenerator,
+        hasMethodReturning<CircuitHandle>('generateCircuitHandle'),
+      );
     });
   });
 
@@ -64,7 +81,11 @@ void main() {
     });
 
     test('SpecificationFailure formats message correctly', () {
-      final failure = SpecificationFailure('Panel', 'ampRating', 'Must be positive');
+      final failure = SpecificationFailure(
+        'Panel',
+        'ampRating',
+        'Must be positive',
+      );
       expect(failure.message, contains('Panel'));
       expect(failure.message, contains('ampRating'));
       expect(failure.message, contains('Must be positive'));
@@ -73,7 +94,8 @@ void main() {
 }
 
 // Helper matcher (simplified - real implementation would use reflection)
-Matcher hasMethodReturning<T>(String methodName) => _HasMethodReturning<T>(methodName);
+Matcher hasMethodReturning<T>(String methodName) =>
+    _HasMethodReturning<T>(methodName);
 
 class _HasMethodReturning<T> extends Matcher {
   final String methodName;

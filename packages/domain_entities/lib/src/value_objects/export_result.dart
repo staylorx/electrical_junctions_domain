@@ -8,12 +8,12 @@ class ExportResult {
   final List<int>? bytesContent;
 
   const ExportResult.string(String content)
-      : stringContent = content,
-        bytesContent = null;
+    : stringContent = content,
+      bytesContent = null;
 
   const ExportResult.bytes(List<int> bytes)
-      : stringContent = null,
-        bytesContent = bytes;
+    : stringContent = null,
+      bytesContent = bytes;
 
   /// Whether this result contains string content.
   bool get isString => stringContent != null;

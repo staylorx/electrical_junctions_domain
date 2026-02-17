@@ -106,7 +106,10 @@ class GenerateDeviceReportsUseCase {
       notes: data['notes'] as String?,
       feedsDevice: data['feedsDevice'] as String?,
       manufacturerId: data['manufacturerId'] as String?,
-      circuitChainData: _buildCircuitChainData(device: device, circuits: circuits),
+      circuitChainData: _buildCircuitChainData(
+        device: device,
+        circuits: circuits,
+      ),
       panelMetrics: _calculatePanelMetrics(panel: device, circuits: circuits),
       table: table,
     );
@@ -463,8 +466,6 @@ class GenerateDeviceReportsUseCase {
     // For all other devices, use model number
     return device.deviceSpecification.modelNumber;
   }
-
-
 
   /// Calculates panel utilization metrics.
   Map<String, dynamic> _calculatePanelMetrics({

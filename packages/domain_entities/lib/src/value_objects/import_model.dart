@@ -19,11 +19,11 @@ class ImportModel with EquatableMixin {
     List<DeviceSpecification>? deviceSpecifications,
     List<Device>? devices,
     List<Circuit>? circuits,
-  })  : manufacturers = manufacturers ?? [],
-        locates = locates ?? [],
-        deviceSpecifications = deviceSpecifications ?? [],
-        devices = devices ?? [],
-        circuits = circuits ?? [];
+  }) : manufacturers = manufacturers ?? [],
+       locates = locates ?? [],
+       deviceSpecifications = deviceSpecifications ?? [],
+       devices = devices ?? [],
+       circuits = circuits ?? [];
 
   bool get isEmpty =>
       manufacturers.isEmpty &&
@@ -34,10 +34,10 @@ class ImportModel with EquatableMixin {
 
   @override
   List<Object?> get props => [
-        manufacturers,
-        locates,
-        deviceSpecifications,
-        devices,
-        circuits,
-      ];
+    manufacturers,
+    locates,
+    deviceSpecifications,
+    devices,
+    circuits,
+  ];
 }

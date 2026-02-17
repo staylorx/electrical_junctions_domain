@@ -15,15 +15,18 @@ void main() {
         errors.should.beEmpty();
       });
 
-      test('Then it should return no errors for circuit with connected devices', () {
-        final errors = CircuitValidator.validate(
-          name: 'Main Circuit',
-          sourceDevice: DeviceHandle('device-1'),
-          connectedDevices: [DeviceHandle('device-2')],
-        );
+      test(
+        'Then it should return no errors for circuit with connected devices',
+        () {
+          final errors = CircuitValidator.validate(
+            name: 'Main Circuit',
+            sourceDevice: DeviceHandle('device-1'),
+            connectedDevices: [DeviceHandle('device-2')],
+          );
 
-        errors.should.beEmpty();
-      });
+          errors.should.beEmpty();
+        },
+      );
     });
 
     group('When validating invalid circuit data', () {
@@ -49,15 +52,18 @@ void main() {
         errors.first.should.contain('cannot exceed 50 characters');
       });
 
-      test('Then it should return error when name is null and no connected devices', () {
-        final errors = CircuitValidator.validate(
-          sourceDevice: DeviceHandle('device-1'),
-          connectedDevices: [],
-        );
+      test(
+        'Then it should return error when name is null and no connected devices',
+        () {
+          final errors = CircuitValidator.validate(
+            sourceDevice: DeviceHandle('device-1'),
+            connectedDevices: [],
+          );
 
-        errors.should.not.beEmpty();
-        errors.first.should.contain('Connected devices list cannot be empty');
-      });
+          errors.should.not.beEmpty();
+          errors.first.should.contain('Connected devices list cannot be empty');
+        },
+      );
     });
   });
 }

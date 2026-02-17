@@ -23,7 +23,9 @@ void main() {
     test('ManufacturerRepository extends BasicCrudContract', () {
       expect(
         ManufacturerRepository,
-        implementsInterface<BasicCrudContract<Manufacturer, ManufacturerHandle>>(),
+        implementsInterface<
+          BasicCrudContract<Manufacturer, ManufacturerHandle>
+        >(),
       );
     });
 
@@ -38,7 +40,8 @@ void main() {
       expect(
         DeviceSpecificationRepository,
         implementsInterface<
-            BasicCrudContract<DeviceSpecification, DeviceSpecificationHandle>>(),
+          BasicCrudContract<DeviceSpecification, DeviceSpecificationHandle>
+        >(),
       );
     });
   });

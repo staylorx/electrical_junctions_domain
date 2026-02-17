@@ -364,5 +364,3 @@ melos:
     bom:
       run: dart scripts/generate_bom.dart
       description: Generate a Bill of Materials (BOM) file for all packages.
-dev_dependencies:
-  mocktail: ^1.0.4
