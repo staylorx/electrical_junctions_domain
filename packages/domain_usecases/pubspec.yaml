@@ -17,4 +17,3 @@ dev_dependencies:
   test: ^1.28.0
   shouldly: ^0.5.0+1
   mocktail: ^1.0.4
-  melos: ^7.4.0
