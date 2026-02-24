@@ -1,5 +1,4 @@
 import 'package:electrical_junctions_entities/index.dart';
-import 'import_pass_criteria.dart';
 
 /// Carries the outcome of a two-phase staged import operation.
 ///
