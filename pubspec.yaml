@@ -11,16 +11,56 @@ workspace:
   - packages/domain_usecases
   - packages/domain_contracts
 
-  # Pulled from flutterfire, to learn how to use melos for monorepo management. See
 melos:
-  name: electrical_junctions_domain
-  repository: https://github.com/staylorx/electrical_junctions_domain
+  scripts:
+    analyze:
+      description: Run static analysis on all packages
+      exec: dart analyze --fatal-infos
+      packageFilters:
+        dirExists: lib
 
-  packages:
-    - packages/**
-    - tests
+    format:
+      description: Check formatting on all packages (no changes applied)
+      exec: dart format . --set-exit-if-changed
+      packageFilters:
+        dirExists: lib
 
-  command:
-    bootstrap:
-      runPubGetInParallel: true
-      # usePubspecOverrides: true
+    format:fix:
+      description: Apply dart format to all packages
+      exec: dart format .
+      packageFilters:
+        dirExists: lib
+
+    test:
+      description: Run tests across all packages
+      exec:
+        concurrency: 1
+        failFast: true
+      run: dart test
+      packageFilters:
+        dirExists: test
+
+    clean:
+      description: Clean all packages and the workspace
+      steps:
+        - melos clean
+        - melos bs
+
+    clean:deep:
+      description: Nuclear clean — removes everything not tracked by git (git clean -fdx), then re-bootstraps
+      steps:
+        - git clean -fdx
+        - melos bs
+
+    prepare:
+      description: Clean and re-bootstrap the workspace ready for development
+      steps:
+        - melos clean
+        - melos bs
+
+    ci:
+      description: Run all checks (analyze, format, test) for CI
+      steps:
+        - melos run analyze
+        - melos run format
+        - melos run test

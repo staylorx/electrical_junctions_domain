@@ -8,7 +8,9 @@ void main() {
       // Verify the return type is properly typed (not dynamic)
       expect(
         ImportService,
-        hasMethodReturning<TaskEither<Failure, ParsingResult>>('importFromString'),
+        hasMethodReturning<TaskEither<Failure, ParsingResult>>(
+          'importFromString',
+        ),
       );
     });
 
