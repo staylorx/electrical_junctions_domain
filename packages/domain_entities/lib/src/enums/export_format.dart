@@ -5,4 +5,13 @@ enum ExportFormat {
 
   /// Excel workbook with multiple sheets
   excel,
+
+  /// YAML format for structured data
+  yaml,
+
+  /// Mermaid diagram format
+  mermaid,
+
+  /// Markdown format for documentation
+  markdown,
 }

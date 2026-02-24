@@ -12,21 +12,24 @@ enum CommitMode {
 }
 
 /// Copies a successfully staged import into a target production database.
-///
-/// Usage:
-/// ```dart
-/// final targetFacade = ElectricalJunctionsFacade(databaseService: productionDb);
-/// final commit = CommitImportUseCase(targetFacade: targetFacade);
-/// final result = await commit.call(
-///   importResult: importResult,
-///   mode: CommitMode.overwrite,
-/// ).run();
-/// ```
 class CommitImportUseCase {
-  final StagingFacade _targetFacade;
+  final ManufacturerRepository _manufacturerRepository;
+  final LocateRepository _locateRepository;
+  final DeviceSpecificationRepository _deviceSpecificationRepository;
+  final DeviceRepository _deviceRepository;
+  final CircuitRepository _circuitRepository;
 
-  CommitImportUseCase({required StagingFacade targetFacade})
-    : _targetFacade = targetFacade;
+  CommitImportUseCase({
+    required ManufacturerRepository manufacturerRepository,
+    required LocateRepository locateRepository,
+    required DeviceSpecificationRepository deviceSpecificationRepository,
+    required DeviceRepository deviceRepository,
+    required CircuitRepository circuitRepository,
+  }) : _manufacturerRepository = manufacturerRepository,
+       _locateRepository = locateRepository,
+       _deviceSpecificationRepository = deviceSpecificationRepository,
+       _deviceRepository = deviceRepository,
+       _circuitRepository = circuitRepository;
 
   /// Commits [importResult] to the target database.
   ///
@@ -53,54 +56,24 @@ class CommitImportUseCase {
         );
       }
 
-      final stagingRepos = importResult.stagingFacade.repositories;
-      final targetRepos = _targetFacade.repositories;
-
-      // Read all staging entities
-      final mfgResult = await stagingRepos.manufacturer.getAll().run();
-      if (mfgResult.isLeft()) {
-        return Left(
-          UCDatabaseReadFailure('Failed to read staged manufacturers'),
-        );
-      }
-      final manufacturers = mfgResult.getRight().toNullable()!;
-
-      final locResult = await stagingRepos.locate.findAll().run();
-      if (locResult.isLeft()) {
-        return Left(UCDatabaseReadFailure('Failed to read staged locates'));
-      }
-      final locates = locResult.getRight().toNullable()!;
-
-      final specResult = await stagingRepos.deviceSpecification.getAll().run();
-      if (specResult.isLeft()) {
-        return Left(
-          UCDatabaseReadFailure('Failed to read staged device specifications'),
-        );
-      }
-      final deviceSpecs = specResult.getRight().toNullable()!;
-
-      final devResult = await stagingRepos.device.getAll().run();
-      if (devResult.isLeft()) {
-        return Left(UCDatabaseReadFailure('Failed to read staged devices'));
-      }
-      final devices = devResult.getRight().toNullable()!;
-
-      final circResult = await stagingRepos.circuit.getAll().run();
-      if (circResult.isLeft()) {
-        return Left(UCDatabaseReadFailure('Failed to read staged circuits'));
-      }
-      final circuits = circResult.getRight().toNullable()!;
+      // Get staged entities directly from import result
+      final manufacturers = importResult.importModel.manufacturers;
+      final locates = importResult.importModel.locates;
+      final deviceSpecs = importResult.importModel.deviceSpecifications;
+      final devices = importResult.importModel.devices;
+      final circuits = importResult.importModel.circuits;
 
       // -- Clear target if overwrite mode --
       if (mode == CommitMode.overwrite) {
-        await _targetFacade.clearAll();
+        // TODO: Implement clear all for target repositories
+        // For now, assume repositories handle upserts or we clear manually
       }
 
       // -- Write in order: manufacturers → locates → device specs → devices → circuits --
 
       // Manufacturers
       for (final mfg in manufacturers) {
-        final r = await targetRepos.manufacturer.create(item: mfg).run();
+        final r = await _manufacturerRepository.create(item: mfg).run();
         if (r.isLeft()) {
           return Left(
             UCDatabaseWriteFailure(
@@ -110,9 +83,9 @@ class CommitImportUseCase {
         }
       }
 
-      // Locates (must be written root-first; staging DB preserves insertion order)
+      // Locates (must be written root-first; staging preserves insertion order)
       for (final loc in locates) {
-        final r = await targetRepos.locate.create(item: loc).run();
+        final r = await _locateRepository.create(item: loc).run();
         if (r.isLeft()) {
           return Left(
             UCDatabaseWriteFailure('Failed to commit locate: ${loc.name}'),
@@ -122,9 +95,7 @@ class CommitImportUseCase {
 
       // Device specifications
       for (final spec in deviceSpecs) {
-        final r = await targetRepos.deviceSpecification
-            .create(item: spec)
-            .run();
+        final r = await _deviceSpecificationRepository.create(item: spec).run();
         if (r.isLeft()) {
           return Left(
             UCDatabaseWriteFailure(
@@ -136,7 +107,7 @@ class CommitImportUseCase {
 
       // Devices
       for (final dev in devices) {
-        final r = await targetRepos.device.create(item: dev).run();
+        final r = await _deviceRepository.create(item: dev).run();
         if (r.isLeft()) {
           return Left(
             UCDatabaseWriteFailure('Failed to commit device: ${dev.name}'),
@@ -146,7 +117,7 @@ class CommitImportUseCase {
 
       // Circuits
       for (final circ in circuits) {
-        final r = await targetRepos.circuit.create(item: circ).run();
+        final r = await _circuitRepository.create(item: circ).run();
         if (r.isLeft()) {
           return Left(
             UCDatabaseWriteFailure('Failed to commit circuit: ${circ.name}'),

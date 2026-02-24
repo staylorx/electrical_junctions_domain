@@ -1,12 +1,11 @@
 import 'package:electrical_junctions_entities/index.dart';
 import 'import_pass_criteria.dart';
-import '../staging/staging_facade.dart';
 
 /// Carries the outcome of a two-phase staged import operation.
 ///
 /// [issues] contains every validation or save issue collected during the import
 /// (both file-level and entity-level).  [summary] is a human-readable
-/// entity-count string. [stagingFacade] provides access to the staged entities.
+/// entity-count string. [importModel] contains the successfully imported entities.
 ///
 /// The import only returns [Left] for truly unrecoverable problems (path not
 /// found, completely unparseable data).  Everything else is surfaced here.
@@ -17,13 +16,13 @@ class ImportResult {
   /// Human-readable summary of entity counts.
   final String summary;
 
-  /// The staging facade containing the imported entities.
-  final StagingFacade stagingFacade;
+  /// The successfully staged import data.
+  final ImportModel importModel;
 
   const ImportResult({
     required this.issues,
     required this.summary,
-    required this.stagingFacade,
+    required this.importModel,
   });
 
   /// True if any collected issue is an error.

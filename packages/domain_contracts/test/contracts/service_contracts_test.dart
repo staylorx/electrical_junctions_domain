@@ -4,32 +4,18 @@ import 'package:fpdart/fpdart.dart';
 
 void main() {
   group('Service Contracts Type Safety', () {
-    test('CsvImportService returns ImportModel', () {
+    test('ImportService returns ParsingResult', () {
       // Verify the return type is properly typed (not dynamic)
       expect(
-        CsvImportService,
-        hasMethodReturning<TaskEither<Failure, ImportModel>>('importFromPath'),
+        ImportService,
+        hasMethodReturning<TaskEither<Failure, ParsingResult>>('importFromString'),
       );
     });
 
-    test('YamlImportService returns ImportModel', () {
+    test('ExportService returns ExportResult', () {
       expect(
-        YamlImportService,
-        hasMethodReturning<TaskEither<Failure, ImportModel>>('importFromPath'),
-      );
-    });
-
-    test('CsvExportService returns ExportResult', () {
-      expect(
-        CsvExportService,
-        hasMethodReturning<TaskEither<Failure, ExportResult>>('exportToCsv'),
-      );
-    });
-
-    test('YamlExportService returns String', () {
-      expect(
-        YamlExportService,
-        hasMethodReturning<TaskEither<Failure, String>>('exportToYaml'),
+        ExportService,
+        hasMethodReturning<TaskEither<Failure, ExportResult>>('export'),
       );
     });
 

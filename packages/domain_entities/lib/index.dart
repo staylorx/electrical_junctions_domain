@@ -10,6 +10,7 @@ export 'src/entities/manufacturer.dart';
 // Domain enums
 export 'src/enums/export_format.dart';
 export 'src/enums/export_mode.dart';
+export 'src/enums/import_format.dart';
 export 'src/enums/phase_type.dart';
 
 // Domain value objects
@@ -21,6 +22,9 @@ export 'src/value_objects/device_report_data.dart';
 export 'src/value_objects/handles/index.dart';
 export 'src/value_objects/unit_of_work.dart';
 export 'src/value_objects/failure.dart';
+export 'src/value_objects/import_pass_criteria.dart';
+export 'src/value_objects/import_result.dart';
+export 'src/value_objects/parsing_result.dart';
 
 // Domain schemas
 export 'src/schemas/index.dart';
