@@ -19,10 +19,7 @@ void main() {
         deviceSpecification: DeviceSpecification(
           typeId: 'fallback',
           modelNumber: 'fallback',
-          manufacturer: Manufacturer(
-            handle: ManufacturerHandle('fallback'),
-            name: 'fallback',
-          ),
+          manufacturer: Manufacturer(name: 'fallback'),
         ),
       ),
     );
@@ -32,10 +29,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'fallback',
             modelNumber: 'fallback',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('fallback'),
-              name: 'fallback',
-            ),
+            manufacturer: Manufacturer(name: 'fallback'),
           ),
         ),
         connectedDevices: [],
@@ -54,10 +48,7 @@ void main() {
   });
 
   group('Given a SlotCircuitBreakerIntoPanelSlotUseCase', () {
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Mfg',
-    );
+    final manufacturer = Manufacturer(name: 'Test Mfg');
     final panelSpec = DeviceSpecification(
       typeId: 'panel',
       modelNumber: 'QO-200A',

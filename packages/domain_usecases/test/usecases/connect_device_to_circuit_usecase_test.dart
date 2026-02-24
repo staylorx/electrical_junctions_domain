@@ -17,10 +17,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'fallback',
             modelNumber: 'fallback',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('fallback'),
-              name: 'fallback',
-            ),
+            manufacturer: Manufacturer(name: 'fallback'),
           ),
         ),
         connectedDevices: [],
@@ -37,10 +34,7 @@ void main() {
   });
 
   group('Given a ConnectDeviceToCircuitUseCase', () {
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Mfg',
-    );
+    final manufacturer = Manufacturer(name: 'Test Mfg');
     final deviceSpec = DeviceSpecification(
       typeId: 'breaker',
       modelNumber: 'QO-20',

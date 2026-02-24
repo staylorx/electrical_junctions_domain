@@ -87,10 +87,7 @@ void main() {
 
     setUp(() {
       mockRepo = MockDeviceRepository();
-      final testManufacturer = Manufacturer(
-        handle: ManufacturerHandle('test-mfg'),
-        name: 'Test Manufacturer',
-      );
+      final testManufacturer = Manufacturer(name: 'Test Manufacturer');
       final testDeviceSpec = DeviceSpecification(
         typeId: 'panel',
         modelNumber: '123',

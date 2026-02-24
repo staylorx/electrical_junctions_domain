@@ -15,10 +15,7 @@ void main() {
   });
 
   group('Given a StageImportUseCase', () {
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Mfg',
-    );
+    final manufacturer = Manufacturer(name: 'Test Mfg');
     final importModel = ImportModel(
       manufacturers: [manufacturer],
       locates: [],

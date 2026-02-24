@@ -25,18 +25,13 @@ void main() {
   late MockCircuitRepository mockCircuitRepository;
 
   setUpAll(() {
-    registerFallbackValue(
-      Manufacturer(handle: ManufacturerHandle('fallback'), name: 'fallback'),
-    );
+    registerFallbackValue(Manufacturer(name: 'fallback'));
     registerFallbackValue(Locate(name: 'fallback'));
     registerFallbackValue(
       DeviceSpecification(
         typeId: 'fallback',
         modelNumber: 'fallback',
-        manufacturer: Manufacturer(
-          handle: ManufacturerHandle('fallback'),
-          name: 'fallback',
-        ),
+        manufacturer: Manufacturer(name: 'fallback'),
       ),
     );
     registerFallbackValue(
@@ -44,10 +39,7 @@ void main() {
         deviceSpecification: DeviceSpecification(
           typeId: 'fallback',
           modelNumber: 'fallback',
-          manufacturer: Manufacturer(
-            handle: ManufacturerHandle('fallback'),
-            name: 'fallback',
-          ),
+          manufacturer: Manufacturer(name: 'fallback'),
         ),
       ),
     );
@@ -57,10 +49,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'fallback',
             modelNumber: 'fallback',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('fallback'),
-              name: 'fallback',
-            ),
+            manufacturer: Manufacturer(name: 'fallback'),
           ),
         ),
         connectedDevices: [],
@@ -87,10 +76,7 @@ void main() {
     group('When executing with valid import result', () {
       test('Then it commits all entities and returns success summary', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Test Mfg',
-        );
+        final manufacturer = Manufacturer(name: 'Test Mfg');
         final locate = Locate(name: 'Test Loc');
         final deviceSpec = DeviceSpecification(
           typeId: 'breaker',
@@ -235,10 +221,7 @@ void main() {
     group('When manufacturer create fails', () {
       test('Then it returns database write failure', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Test Mfg',
-        );
+        final manufacturer = Manufacturer(name: 'Test Mfg');
         final importResult = ImportResult(
           issues: [],
           summary: 'Test import',
@@ -286,10 +269,7 @@ void main() {
     group('When locate create fails', () {
       test('Then it returns database write failure', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Test Mfg',
-        );
+        final manufacturer = Manufacturer(name: 'Test Mfg');
         final locate = Locate(name: 'Test Loc');
         final importResult = ImportResult(
           issues: [],
@@ -348,10 +328,7 @@ void main() {
     group('When device specification create fails', () {
       test('Then it returns database write failure', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Test Mfg',
-        );
+        final manufacturer = Manufacturer(name: 'Test Mfg');
         final locate = Locate(name: 'Test Loc');
         final deviceSpec = DeviceSpecification(
           typeId: 'breaker',
@@ -424,10 +401,7 @@ void main() {
     group('When device create fails', () {
       test('Then it returns database write failure', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Test Mfg',
-        );
+        final manufacturer = Manufacturer(name: 'Test Mfg');
         final locate = Locate(name: 'Test Loc');
         final deviceSpec = DeviceSpecification(
           typeId: 'breaker',
@@ -511,10 +485,7 @@ void main() {
     group('When circuit create fails', () {
       test('Then it returns database write failure', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Test Mfg',
-        );
+        final manufacturer = Manufacturer(name: 'Test Mfg');
         final locate = Locate(name: 'Test Loc');
         final deviceSpec = DeviceSpecification(
           typeId: 'breaker',

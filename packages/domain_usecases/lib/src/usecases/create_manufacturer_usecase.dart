@@ -4,20 +4,13 @@ import 'package:fpdart/fpdart.dart';
 /// Creates a new `Manufacturer` and saves it to the repository.
 class CreateManufacturerUseCase {
   final ManufacturerRepository manufacturerRepository;
-  final HandleGenerator _handleGenerator;
 
-  CreateManufacturerUseCase({
-    required this.manufacturerRepository,
-    required HandleGenerator handleGenerator,
-  }) : _handleGenerator = handleGenerator;
+  CreateManufacturerUseCase({required this.manufacturerRepository});
 
   TaskEither<Failure, Manufacturer> call({required String name}) {
-    final manufacturer = Manufacturer(
-      handle: _handleGenerator.generateManufacturerHandle(),
-      name: name,
-    );
+    final manufacturer = Manufacturer(name: name);
     return manufacturerRepository
         .create(item: manufacturer)
-        .map((_) => manufacturer);
+        .map((withHandle) => withHandle.manufacturer);
   }
 }

@@ -17,10 +17,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'fallback',
             modelNumber: 'fallback',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('fallback'),
-              name: 'fallback',
-            ),
+            manufacturer: Manufacturer(name: 'fallback'),
           ),
         ),
         connectedDevices: [],
@@ -43,10 +40,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'panel',
             modelNumber: 'QO-200A',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('mfg-1'),
-              name: 'Square D',
-            ),
+            manufacturer: Manufacturer(name: 'Square D'),
           ),
         );
         final expected = CircuitWithHandle(
@@ -78,10 +72,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'panel',
             modelNumber: 'QO-200A',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('mfg-1'),
-              name: 'Square D',
-            ),
+            manufacturer: Manufacturer(name: 'Square D'),
           ),
         );
         final failure = DatastoreFailure('Database error');

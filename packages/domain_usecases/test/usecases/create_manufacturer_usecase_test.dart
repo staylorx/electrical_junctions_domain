@@ -7,53 +7,32 @@ import 'package:fpdart/fpdart.dart';
 class MockManufacturerRepository extends Mock
     implements ManufacturerRepository {}
 
-class MockHandleGenerator extends Mock implements HandleGenerator {}
-
 void main() {
   late CreateManufacturerUseCase useCase;
   late MockManufacturerRepository mockManufacturerRepository;
-  late MockHandleGenerator mockHandleGenerator;
 
   setUpAll(() {
-    registerFallbackValue(
-      Manufacturer(handle: ManufacturerHandle('fallback'), name: 'fallback'),
-    );
+    registerFallbackValue(Manufacturer(name: 'fallback'));
   });
 
   setUp(() {
     mockManufacturerRepository = MockManufacturerRepository();
-    mockHandleGenerator = MockHandleGenerator();
     useCase = CreateManufacturerUseCase(
       manufacturerRepository: mockManufacturerRepository,
-      handleGenerator: mockHandleGenerator,
     );
   });
 
   group('Given a CreateManufacturerUseCase', () {
-    late MockHandleGenerator mockHandleGenerator;
-
-    setUp(() {
-      mockManufacturerRepository = MockManufacturerRepository();
-      mockHandleGenerator = MockHandleGenerator();
-      useCase = CreateManufacturerUseCase(
-        manufacturerRepository: mockManufacturerRepository,
-        handleGenerator: mockHandleGenerator,
-      );
-    });
-
     group('When executing with valid input', () {
       test('Then it returns success with expected data', () async {
         // Arrange
         final name = 'Square D';
         final handle = ManufacturerHandle('mfg-1');
-        final expected = Manufacturer(handle: handle, name: name);
+        final manufacturer = Manufacturer(name: name);
         final expectedWithHandle = ManufacturerWithHandle(
           handle: handle,
-          manufacturer: expected,
+          manufacturer: manufacturer,
         );
-        when(
-          () => mockHandleGenerator.generateManufacturerHandle(),
-        ).thenReturn(handle);
         when(
           () => mockManufacturerRepository.create(item: any(named: 'item')),
         ).thenReturn(TaskEither.right(expectedWithHandle));
@@ -64,11 +43,9 @@ void main() {
         // Should
         result.fold(
           (failure) => fail('Expected success, got failure: $failure'),
-          (manufacturer) => expect(manufacturer, equals(expected)),
+          (returnedManufacturer) =>
+              expect(returnedManufacturer, equals(manufacturer)),
         );
-        verify(
-          () => mockHandleGenerator.generateManufacturerHandle(),
-        ).called(1);
         verify(
           () => mockManufacturerRepository.create(item: any(named: 'item')),
         ).called(1);
@@ -78,11 +55,7 @@ void main() {
     group('When repository returns failure', () {
       test('Then it propagates the failure', () async {
         // Arrange
-        final handle = ManufacturerHandle('mfg-1');
         final failure = DatastoreFailure('Database error');
-        when(
-          () => mockHandleGenerator.generateManufacturerHandle(),
-        ).thenReturn(handle);
         when(
           () => mockManufacturerRepository.create(item: any(named: 'item')),
         ).thenReturn(TaskEither.left(failure));

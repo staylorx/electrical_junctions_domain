@@ -77,8 +77,7 @@ class GenerateDeviceReportsUseCase {
     // Add manufacturer ID if configured
     if (configuration.includeManufacturerDetails &&
         manufacturerRepository != null) {
-      data['manufacturerId'] =
-          device.deviceSpecification.manufacturer.handle.value;
+      data['manufacturerId'] = device.deviceSpecification.manufacturer.name;
     }
 
     // Add circuit chain data if configured

@@ -20,10 +20,7 @@ void main() {
   });
 
   group('Given a ViewPanelStatusUseCase', () {
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Mfg',
-    );
+    final manufacturer = Manufacturer(name: 'Test Mfg');
     final deviceSpec = DeviceSpecification(
       typeId: 'panel',
       modelNumber: 'QO-200A',

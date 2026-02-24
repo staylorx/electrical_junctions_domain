@@ -16,10 +16,7 @@ void main() {
       DeviceSpecification(
         typeId: 'fallback',
         modelNumber: 'fallback',
-        manufacturer: Manufacturer(
-          handle: ManufacturerHandle('fallback'),
-          name: 'fallback',
-        ),
+        manufacturer: Manufacturer(name: 'fallback'),
         properties: {},
       ),
     );
@@ -43,10 +40,7 @@ void main() {
     group('When executing with valid input', () {
       test('Then it returns success with expected data', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Square D',
-        );
+        final manufacturer = Manufacturer(name: 'Square D');
         final typeId = 'panel';
         final modelNumber = 'QO-200A';
         final properties = <String, dynamic>{'ampRating': 200};
@@ -92,10 +86,7 @@ void main() {
     group('When repository returns failure', () {
       test('Then it propagates the failure', () async {
         // Arrange
-        final manufacturer = Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Square D',
-        );
+        final manufacturer = Manufacturer(name: 'Square D');
         final failure = DatastoreFailure('Database error');
         when(
           () => mockDeviceSpecificationRepository.create(

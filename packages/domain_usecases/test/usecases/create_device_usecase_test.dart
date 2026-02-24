@@ -20,10 +20,7 @@ void main() {
         deviceSpecification: DeviceSpecification(
           typeId: 'fallback',
           modelNumber: 'fallback',
-          manufacturer: Manufacturer(
-            handle: ManufacturerHandle('fallback'),
-            name: 'fallback',
-          ),
+          manufacturer: Manufacturer(name: 'fallback'),
         ),
       ),
     );
@@ -42,10 +39,7 @@ void main() {
     final deviceSpec = DeviceSpecification(
       typeId: 'panel',
       modelNumber: 'QO-200A',
-      manufacturer: Manufacturer(
-        handle: ManufacturerHandle('mfg-1'),
-        name: 'Square D',
-      ),
+      manufacturer: Manufacturer(name: 'Square D'),
     );
 
     final deviceHandle = DeviceHandle('device-1');

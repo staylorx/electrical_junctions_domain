@@ -13,9 +13,7 @@ void main() {
   late MockManufacturerRepository mockManufacturerRepository;
 
   setUpAll(() {
-    registerFallbackValue(
-      Manufacturer(handle: ManufacturerHandle('fallback'), name: 'fallback'),
-    );
+    registerFallbackValue(Manufacturer(name: 'fallback'));
     registerFallbackValue(ManufacturerHandle('fallback'));
   });
 
@@ -28,18 +26,12 @@ void main() {
 
   group('Given a UpdateManufacturerUseCase', () {
     final handle = ManufacturerHandle('mfg-123');
-    final manufacturer = Manufacturer(
-      handle: handle,
-      name: 'Test Manufacturer',
-    );
+    final manufacturer = Manufacturer(name: 'Test Manufacturer');
 
     group('When executing with valid input', () {
       test('Then it returns success with updated manufacturer', () async {
         // Arrange
-        final updatedManufacturer = Manufacturer(
-          handle: handle,
-          name: 'Updated Manufacturer',
-        );
+        final updatedManufacturer = Manufacturer(name: 'Updated Manufacturer');
         final manufacturerWithHandle = ManufacturerWithHandle(
           handle: handle,
           manufacturer: updatedManufacturer,

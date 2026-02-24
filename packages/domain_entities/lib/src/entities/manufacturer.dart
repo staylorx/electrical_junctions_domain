@@ -7,25 +7,30 @@ class ManufacturerWithHandle with EquatableMixin {
 
   ManufacturerWithHandle({required this.handle, required this.manufacturer});
 
+  ManufacturerWithHandle copyWith({
+    ManufacturerHandle? handle,
+    Manufacturer? manufacturer,
+  }) {
+    return ManufacturerWithHandle(
+      handle: handle ?? this.handle,
+      manufacturer: manufacturer ?? this.manufacturer,
+    );
+  }
+
   @override
   List<Object?> get props => [handle, manufacturer];
 }
 
 /// Represents the `Manufacturer` class.
 class Manufacturer with EquatableMixin {
-  final ManufacturerHandle handle;
   final String name;
 
-  Manufacturer({required this.handle, required this.name});
+  Manufacturer({required this.name});
 
-  static final generic = Manufacturer(
-    handle: ManufacturerHandle('generic'),
-    name: 'Generic',
-  );
-  Manufacturer copyWith({ManufacturerHandle? handle, String? name}) {
-    return Manufacturer(handle: handle ?? this.handle, name: name ?? this.name);
+  Manufacturer copyWith({String? name}) {
+    return Manufacturer(name: name ?? this.name);
   }
 
   @override
-  List<Object?> get props => [handle, name];
+  List<Object?> get props => [name];
 }

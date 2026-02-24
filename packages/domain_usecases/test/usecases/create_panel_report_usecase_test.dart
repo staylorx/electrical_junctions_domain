@@ -33,10 +33,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'panel',
             modelNumber: 'QO-200A',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('mfg-1'),
-              name: 'Square D',
-            ),
+            manufacturer: Manufacturer(name: 'Square D'),
           ),
           locate: Locate(name: 'Main Panel'),
         );
@@ -45,10 +42,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'circuit_breaker',
             modelNumber: 'QO120',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('mfg-1'),
-              name: 'Square D',
-            ),
+            manufacturer: Manufacturer(name: 'Square D'),
             properties: {'ampRating': 20, 'poleCount': 1},
           ),
           locate: Locate(name: 'Slot 1'),
@@ -71,10 +65,7 @@ void main() {
                 deviceSpecification: DeviceSpecification(
                   typeId: 'light',
                   modelNumber: 'Light1',
-                  manufacturer: Manufacturer(
-                    handle: ManufacturerHandle('mfg-1'),
-                    name: 'Square D',
-                  ),
+                  manufacturer: Manufacturer(name: 'Square D'),
                 ),
                 locate: Locate(name: 'Light 1'),
               ),
@@ -104,10 +95,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'switch',
             modelNumber: 'Switch1',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('mfg-1'),
-              name: 'Square D',
-            ),
+            manufacturer: Manufacturer(name: 'Square D'),
           ),
         );
 
@@ -129,10 +117,7 @@ void main() {
           deviceSpecification: DeviceSpecification(
             typeId: 'panel',
             modelNumber: 'QO-200A',
-            manufacturer: Manufacturer(
-              handle: ManufacturerHandle('mfg-1'),
-              name: 'Square D',
-            ),
+            manufacturer: Manufacturer(name: 'Square D'),
           ),
         );
         final failure = DatastoreFailure('Database error');

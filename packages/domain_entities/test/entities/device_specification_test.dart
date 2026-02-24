@@ -4,12 +4,10 @@ import 'package:shouldly/shouldly.dart';
 
 void main() {
   group('Given a DeviceSpecification entity', () {
-    late ManufacturerHandle mfgHandle;
     late Manufacturer testManufacturer;
 
     setUp(() {
-      mfgHandle = ManufacturerHandle('mfg-456');
-      testManufacturer = Manufacturer(handle: mfgHandle, name: 'Square D');
+      testManufacturer = Manufacturer(name: 'Square D');
     });
 
     group('When creating a device specification', () {

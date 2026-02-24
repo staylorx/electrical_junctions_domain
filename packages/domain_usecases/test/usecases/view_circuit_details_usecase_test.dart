@@ -22,10 +22,7 @@ void main() {
   });
 
   group('Given a ViewCircuitDetailsUseCase', () {
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Mfg',
-    );
+    final manufacturer = Manufacturer(name: 'Test Mfg');
     final deviceSpec = DeviceSpecification(
       typeId: 'breaker',
       modelNumber: 'QO-20',

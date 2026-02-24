@@ -17,10 +17,7 @@ void main() {
       DeviceSpecification(
         typeId: 'fallback',
         modelNumber: 'fallback',
-        manufacturer: Manufacturer(
-          handle: ManufacturerHandle('fallback'),
-          name: 'fallback',
-        ),
+        manufacturer: Manufacturer(name: 'fallback'),
       ),
     );
     registerFallbackValue(DeviceSpecificationHandle('fallback'));
@@ -35,10 +32,7 @@ void main() {
 
   group('Given a UpdateDeviceSpecificationUseCase', () {
     final handle = DeviceSpecificationHandle('spec-123');
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Manufacturer',
-    );
+    final manufacturer = Manufacturer(name: 'Test Manufacturer');
     final deviceSpec = DeviceSpecification(
       typeId: 'breaker',
       modelNumber: 'QO-20',

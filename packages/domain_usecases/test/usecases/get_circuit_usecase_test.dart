@@ -22,10 +22,7 @@ void main() {
 
   group('Given a GetCircuitUseCase', () {
     final circuitHandle = CircuitHandle('circuit-123');
-    final manufacturer = Manufacturer(
-      handle: ManufacturerHandle('mfg-1'),
-      name: 'Test Manufacturer',
-    );
+    final manufacturer = Manufacturer(name: 'Test Manufacturer');
     final deviceSpec = DeviceSpecification(
       typeId: 'breaker',
       modelNumber: 'QO-20',

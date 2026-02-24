@@ -26,10 +26,7 @@ void main() {
       deviceSpecification: DeviceSpecification(
         typeId: 'panel',
         modelNumber: 'QO-200A',
-        manufacturer: Manufacturer(
-          handle: ManufacturerHandle('mfg-1'),
-          name: 'Square D',
-        ),
+        manufacturer: Manufacturer(name: 'Square D'),
       ),
     );
 
