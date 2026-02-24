@@ -18,44 +18,53 @@ class SetDeviceSpecificationPropertyUseCase {
     required String propertyKey,
     required dynamic value,
   }) {
-    return deviceSpecificationRepository.getByHandle(handle: handle).flatMap((
-      deviceSpec,
-    ) {
-      return TaskEither.fromEither(
-        schemaService
-            .getPropertyAccessorFP(deviceSpec.typeId, propertyKey)
-            .flatMap((accessor) {
-              try {
-                // Create a copy of properties to modify
-                final updatedProperties = Map<String, dynamic>.from(
-                  deviceSpec.properties,
-                );
-                accessor.set(updatedProperties, value);
+    return deviceSpecificationRepository
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .flatMap((deviceSpec) {
+          return TaskEither<Failure, DeviceSpecification>.fromEither(
+            schemaService
+                .getPropertyAccessorFP(
+                  deviceSpec.deviceSpecification.typeId,
+                  propertyKey,
+                )
+                .flatMap((accessor) {
+                  try {
+                    // Create a copy of properties to modify
+                    final updatedProperties = Map<String, dynamic>.from(
+                      deviceSpec.deviceSpecification.properties,
+                    );
+                    accessor.set(updatedProperties, value);
 
-                // Validate the updated properties
-                return schemaService
-                    .validatePropertiesFP(deviceSpec.typeId, updatedProperties)
-                    .map((_) {
-                      // Create updated device spec
-                      final updatedDeviceSpec = deviceSpec.copyWith(
-                        properties: updatedProperties,
-                      );
-                      return updatedDeviceSpec;
-                    });
-              } catch (e) {
-                return Left(
-                  InvalidPropertyDefinitionFailure(
-                    propertyKey,
-                    'Failed to set property: $e',
-                  ),
-                );
-              }
-            }),
-      ).flatMap((updatedDeviceSpec) {
-        return deviceSpecificationRepository
-            .update(item: updatedDeviceSpec as DeviceSpecification)
-            .map((_) => unit);
-      });
-    });
+                    // Validate the updated properties
+                    return schemaService
+                        .validatePropertiesFP(
+                          deviceSpec.deviceSpecification.typeId,
+                          updatedProperties,
+                        )
+                        .map((_) {
+                          // Create updated device spec
+                          final DeviceSpecification updatedDeviceSpec =
+                              deviceSpec.deviceSpecification.copyWith(
+                                properties: updatedProperties,
+                              );
+                          return updatedDeviceSpec;
+                        });
+                  } catch (e) {
+                    return Left(
+                      InvalidPropertyDefinitionFailure(
+                        propertyKey,
+                        'Failed to set property: $e',
+                      ),
+                    );
+                  }
+                }),
+          ).flatMap((updatedDeviceSpec) {
+            return deviceSpecificationRepository
+                .update(item: updatedDeviceSpec, handle: handle)
+                .mapLeft((failure) => failure)
+                .map((_) => unit);
+          });
+        });
   }
 }

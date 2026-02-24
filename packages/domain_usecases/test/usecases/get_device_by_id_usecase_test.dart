@@ -24,7 +24,6 @@ void main() {
     final device = Device(
       handle: deviceHandle,
       deviceSpecification: DeviceSpecification(
-        handle: DeviceSpecificationHandle('spec-1'),
         typeId: 'panel',
         modelNumber: 'QO-200A',
         manufacturer: Manufacturer(
@@ -37,7 +36,11 @@ void main() {
     test('should return device when found', () async {
       when(
         () => mockDeviceRepository.getByHandle(handle: any(named: 'handle')),
-      ).thenReturn(TaskEither.right(device));
+      ).thenReturn(
+        TaskEither.right(
+          DeviceWithHandle(handle: deviceHandle, device: device),
+        ),
+      );
 
       final result = await useCase(handle: deviceHandle).run();
 

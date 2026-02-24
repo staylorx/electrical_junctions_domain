@@ -5,21 +5,21 @@ import 'package:shouldly/shouldly.dart';
 void main() {
   group('Given a Device entity', () {
     late DeviceHandle testHandle;
-    late DeviceSpecificationHandle specHandle;
     late DeviceSpecification testSpec;
     late Locate testLocation;
 
     setUp(() {
       testHandle = DeviceHandle('device-123');
-      specHandle = DeviceSpecificationHandle('spec-456');
-      final manufacturer = Manufacturer(id: 'mfg-1', name: 'Square D');
+      final manufacturer = Manufacturer(
+        handle: ManufacturerHandle('mfg-1'),
+        name: 'Square D',
+      );
       testSpec = DeviceSpecification(
-        handle: specHandle,
         typeId: 'panel',
         modelNumber: 'QO-200A',
         manufacturer: manufacturer,
       );
-      testLocation = Locate(id: 'loc-1', name: 'Room 101');
+      testLocation = Locate(name: 'Room 101');
     });
 
     group('When creating a device', () {

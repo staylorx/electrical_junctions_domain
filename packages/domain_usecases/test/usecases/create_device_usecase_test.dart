@@ -18,7 +18,6 @@ void main() {
       Device(
         handle: DeviceHandle('fallback'),
         deviceSpecification: DeviceSpecification(
-          handle: DeviceSpecificationHandle('fallback'),
           typeId: 'fallback',
           modelNumber: 'fallback',
           manufacturer: Manufacturer(
@@ -41,7 +40,6 @@ void main() {
 
   group('CreateDeviceUseCase', () {
     final deviceSpec = DeviceSpecification(
-      handle: DeviceSpecificationHandle('spec-1'),
       typeId: 'panel',
       modelNumber: 'QO-200A',
       manufacturer: Manufacturer(
@@ -51,9 +49,10 @@ void main() {
     );
 
     final deviceHandle = DeviceHandle('device-1');
-    final expectedDevice = Device(
+    final expectedDevice = Device(deviceSpecification: deviceSpec);
+    final expectedDeviceWithHandle = DeviceWithHandle(
       handle: deviceHandle,
-      deviceSpecification: deviceSpec,
+      device: expectedDevice,
     );
 
     setUp(() {
@@ -62,7 +61,7 @@ void main() {
       ).thenReturn(deviceHandle);
       when(
         () => mockDeviceRepository.create(item: any(named: 'item')),
-      ).thenReturn(TaskEither.right(expectedDevice));
+      ).thenReturn(TaskEither.right(expectedDeviceWithHandle));
     });
 
     test('should create device with required fields', () async {
@@ -71,7 +70,6 @@ void main() {
       result.fold(
         (failure) => fail('Expected success, got failure: $failure'),
         (device) {
-          expect(device.handle, equals(deviceHandle));
           expect(device.deviceSpecification, equals(deviceSpec));
           expect(device.name, isNull);
           expect(device.locate, isNull);
@@ -85,7 +83,7 @@ void main() {
     });
 
     test('should create device with all fields', () async {
-      final locate = Locate(handle: LocateHandle('loc-1'), name: 'Room 101');
+      final locate = Locate(name: 'Room 101');
 
       final result = await useCase(
         name: 'Test Device',

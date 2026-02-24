@@ -3,8 +3,8 @@ import '../basic_crud_contract.dart';
 
 /// Repository contract for `Circuit` entities.
 /// Provides CRUD operations for electrical circuits, including panel slots
-/// (represented as circuits with stereoType = "panel_slot").
+/// (represented as circuits with stereotype = "panel_slot").
 abstract class CircuitRepository
-    implements BasicCrudContract<Circuit, CircuitHandle> {
+    implements BasicCrudContract<Circuit, CircuitHandle, CircuitWithHandle> {
   // All CRUD operations inherited from BasicCrudContract
 }

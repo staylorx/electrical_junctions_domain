@@ -13,20 +13,29 @@ class ConnectDeviceToCircuitUseCase {
            UpdateCircuitUseCase(circuitRepository: circuitRepository!);
   TaskEither<Failure, Unit> call({
     required Device device,
-    required Circuit circuit,
+    required CircuitWithHandle circuit,
   }) {
-    if (circuit.connectedDevices.contains(device)) {
+    if (circuit.circuit.connectedDevices.contains(device)) {
       return TaskEither.left(
         UCValidationFailure('Device is already connected to circuit'),
       );
     }
 
-    final updatedConnected = [...circuit.connectedDevices, device];
-    final updatedCircuit = Circuit(
-      handle: circuit.handle,
-      sourceDevice: circuit.sourceDevice,
+    final updatedConnected = [...circuit.circuit.connectedDevices, device];
+    final updatedCircuitEntity = Circuit(
+      name: circuit.circuit.name,
+      sourceDevice: circuit.circuit.sourceDevice,
       connectedDevices: updatedConnected,
+      stereotype: circuit.circuit.stereotype,
     );
-    return updateCircuitUseCase.call(circuit: updatedCircuit).map((_) => unit);
+    final updatedCircuitWithHandle = circuit.copyWith(
+      circuit: updatedCircuitEntity,
+    );
+    return updateCircuitUseCase
+        .call(
+          circuit: updatedCircuitWithHandle.circuit,
+          handle: updatedCircuitWithHandle.handle,
+        )
+        .map((_) => unit);
   }
 }

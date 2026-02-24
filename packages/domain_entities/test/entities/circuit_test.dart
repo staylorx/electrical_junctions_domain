@@ -4,17 +4,17 @@ import 'package:shouldly/shouldly.dart';
 
 void main() {
   group('Given a Circuit entity', () {
-    late CircuitHandle testHandle;
     late DeviceHandle sourceHandle;
     late Device sourceDevice;
     late DeviceSpecification testSpec;
 
     setUp(() {
-      testHandle = CircuitHandle('circuit-123');
       sourceHandle = DeviceHandle('device-456');
-      final manufacturer = Manufacturer(id: 'mfg-1', name: 'Square D');
+      final manufacturer = Manufacturer(
+        handle: ManufacturerHandle('mfg-1'),
+        name: 'Square D',
+      );
       testSpec = DeviceSpecification(
-        handle: DeviceSpecificationHandle('spec-1'),
         typeId: 'panel',
         modelNumber: 'QO-200A',
         manufacturer: manufacturer,
@@ -28,16 +28,14 @@ void main() {
     group('When creating a circuit', () {
       test('Then it should create with required fields', () {
         final circuit = Circuit(
-          handle: testHandle,
           sourceDevice: sourceDevice,
           connectedDevices: [],
         );
 
-        circuit.handle.should.be(testHandle);
         circuit.sourceDevice.should.be(sourceDevice);
         circuit.connectedDevices.should.beEmpty();
         circuit.name.should.beNull();
-        circuit.stereoType.should.beNull();
+        circuit.stereotype.should.beNull();
       });
 
       test('Then it should create with connected devices', () {
@@ -47,7 +45,6 @@ void main() {
         );
 
         final circuit = Circuit(
-          handle: testHandle,
           sourceDevice: sourceDevice,
           connectedDevices: [connectedDevice],
         );
@@ -58,27 +55,24 @@ void main() {
 
       test('Then it should create with stereotype', () {
         final circuit = Circuit(
-          handle: testHandle,
           sourceDevice: sourceDevice,
-          stereoType: 'panel_slot',
+          stereotype: 'panel_slot',
           connectedDevices: [],
         );
 
-        circuit.stereoType.should.be('panel_slot');
+        circuit.stereotype.should.be('panel_slot');
       });
     });
 
     group('When checking equality', () {
       test('Then circuits with same properties should be equal', () {
         final circuit1 = Circuit(
-          handle: testHandle,
           sourceDevice: sourceDevice,
           name: 'Circuit A1',
           connectedDevices: [],
         );
 
         final circuit2 = Circuit(
-          handle: testHandle,
           sourceDevice: sourceDevice,
           name: 'Circuit A1',
           connectedDevices: [],
@@ -87,16 +81,16 @@ void main() {
         circuit1.should.be(circuit2);
       });
 
-      test('Then circuits with different handles should not be equal', () {
+      test('Then circuits with different names should not be equal', () {
         final circuit1 = Circuit(
-          handle: testHandle,
           sourceDevice: sourceDevice,
+          name: 'Circuit A1',
           connectedDevices: [],
         );
 
         final circuit2 = Circuit(
-          handle: CircuitHandle('different-handle'),
           sourceDevice: sourceDevice,
+          name: 'Circuit B1',
           connectedDevices: [],
         );
 

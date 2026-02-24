@@ -29,8 +29,8 @@ class SearchDevicesUseCase {
         filtered = filtered
             .where(
               (d) =>
-                  d.deviceSpecification.typeId == 'panel' &&
-                  d.locate?.name == location,
+                  d.device.deviceSpecification.typeId == 'panel' &&
+                  d.device.locate?.name == location,
             )
             .toList();
       }
@@ -38,13 +38,15 @@ class SearchDevicesUseCase {
       // Filter by manufacturer
       if (manufacturer != null) {
         filtered = filtered
-            .where((d) => d.deviceSpecification.manufacturer == manufacturer)
+            .where(
+              (d) => d.device.deviceSpecification.manufacturer == manufacturer,
+            )
             .toList();
       }
 
       // Filter by locate
       if (locate != null) {
-        filtered = filtered.where((d) => d.locate == locate).toList();
+        filtered = filtered.where((d) => d.device.locate == locate).toList();
       }
 
       // Filter by amperage
@@ -52,7 +54,9 @@ class SearchDevicesUseCase {
         filtered = filtered
             .where(
               (d) =>
-                  d.deviceSpecification.safeGetProperty<int>('ampRating') ==
+                  d.device.deviceSpecification.safeGetProperty<int>(
+                    'ampRating',
+                  ) ==
                   amperage,
             )
             .toList();
@@ -63,13 +67,15 @@ class SearchDevicesUseCase {
         filtered = filtered
             .where(
               (d) =>
-                  d.deviceSpecification.safeGetProperty<int>('poleCount') ==
+                  d.device.deviceSpecification.safeGetProperty<int>(
+                    'poleCount',
+                  ) ==
                   poles,
             )
             .toList();
       }
 
-      return filtered;
+      return filtered.map((d) => d.device).toList();
     });
   }
 }

@@ -5,11 +5,11 @@ import '../basic_crud_contract.dart';
 /// Repository contract for `Locate` entities.
 /// Provides CRUD operations and hierarchical navigation for location entities.
 abstract class LocateRepository
-    implements BasicCrudContract<Locate, LocateHandle> {
+    implements BasicCrudContract<Locate, LocateHandle, LocateWithHandle> {
   /// Retrieves all child locations of the specified location.
-  TaskEither<Failure, List<Locate>> findChildren(Locate locate);
+  TaskEither<Failure, List<LocateWithHandle>> findChildren(Locate locate);
 
   /// Retrieves the parent location of the specified location, if any.
   /// Returns null if the location has no parent (is a root location).
-  TaskEither<Failure, Locate?> findParent(Locate locate);
+  TaskEither<Failure, LocateWithHandle?> findParent(Locate locate);
 }

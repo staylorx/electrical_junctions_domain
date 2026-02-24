@@ -4,18 +4,11 @@ import 'package:fpdart/fpdart.dart';
 /// Creates a new `Locate` and saves it to the repository.
 class CreateLocateUseCase {
   final LocateRepository locateRepository;
-  final HandleGenerator _handleGenerator;
 
-  CreateLocateUseCase({
-    required this.locateRepository,
-    required HandleGenerator handleGenerator,
-  }) : _handleGenerator = handleGenerator;
+  CreateLocateUseCase({required this.locateRepository});
 
-  TaskEither<Failure, Locate> call({required String name}) {
-    final locate = Locate(
-      handle: _handleGenerator.generateLocateHandle(),
-      name: name,
-    );
+  TaskEither<Failure, LocateWithHandle> call({required String name}) {
+    final locate = Locate(name: name);
     return locateRepository.create(item: locate);
   }
 }

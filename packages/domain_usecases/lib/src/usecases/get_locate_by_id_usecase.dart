@@ -8,6 +8,9 @@ class GetLocateByIdUseCase {
   GetLocateByIdUseCase({required this.locateRepository});
 
   TaskEither<Failure, Locate> call({required LocateHandle handle}) {
-    return locateRepository.getByHandle(handle: handle);
+    return locateRepository
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .map((result) => result.locate);
   }
 }

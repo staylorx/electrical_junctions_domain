@@ -12,7 +12,11 @@ class UpdateDeviceSpecificationUseCase {
 
   TaskEither<Failure, DeviceSpecification> call({
     required DeviceSpecification deviceSpecification,
+    required DeviceSpecificationHandle handle,
   }) {
-    return deviceSpecificationRepository.update(item: deviceSpecification);
+    return deviceSpecificationRepository
+        .update(item: deviceSpecification, handle: handle)
+        .mapLeft((failure) => failure)
+        .map((updated) => updated.deviceSpecification);
   }
 }

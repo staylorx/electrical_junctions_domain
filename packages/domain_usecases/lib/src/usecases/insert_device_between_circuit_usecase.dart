@@ -13,14 +13,17 @@ class InsertDeviceBetweenCircuitUseCase {
            UpdateCircuitUseCase(circuitRepository: circuitRepository!);
 
   TaskEither<Failure, Unit> call({
-    required Circuit circuit,
+    required CircuitWithHandle circuit,
     required Device device1,
     required Device device2,
     required Device newDevice,
   }) {
-    final fullPath = [circuit.sourceDevice, ...circuit.connectedDevices];
-    final index1 = fullPath.indexOf(device1);
-    final index2 = fullPath.indexOf(device2);
+    final fullPath = [
+      circuit.circuit.sourceDevice,
+      ...circuit.circuit.connectedDevices,
+    ];
+    final index1 = fullPath.indexWhere((e) => identical(e, device1));
+    final index2 = fullPath.indexWhere((e) => identical(e, device2));
 
     if (index1 == -1 || index2 == -1) {
       return TaskEither.left(
@@ -34,18 +37,29 @@ class InsertDeviceBetweenCircuitUseCase {
       );
     }
     final insertIndex = index1 < index2 ? index1 + 1 : index2 + 1;
-    final updatedConnected = List<Device>.from(circuit.connectedDevices);
+    final updatedConnected = List<Device>.from(
+      circuit.circuit.connectedDevices,
+    );
 
     if (insertIndex == 1) {
       updatedConnected.insert(0, newDevice);
     } else {
       updatedConnected.insert(insertIndex - 1, newDevice);
     }
-    final updatedCircuit = Circuit(
-      handle: circuit.handle,
-      sourceDevice: circuit.sourceDevice,
+    final updatedCircuitEntity = Circuit(
+      name: circuit.circuit.name,
+      sourceDevice: circuit.circuit.sourceDevice,
       connectedDevices: updatedConnected,
+      stereotype: circuit.circuit.stereotype,
     );
-    return updateCircuitUseCase.call(circuit: updatedCircuit).map((_) => unit);
+    final updatedCircuitWithHandle = circuit.copyWith(
+      circuit: updatedCircuitEntity,
+    );
+    return updateCircuitUseCase
+        .call(
+          circuit: updatedCircuitWithHandle.circuit,
+          handle: updatedCircuitWithHandle.handle,
+        )
+        .map((_) => unit);
   }
 }

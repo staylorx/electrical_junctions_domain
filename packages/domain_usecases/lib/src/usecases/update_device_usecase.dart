@@ -15,16 +15,16 @@ class UpdateDeviceUseCase {
     Locate? locate,
     required DeviceHandle handle,
   }) {
-    final result = deviceRepository.getByHandle(handle: handle).flatMap((
-      existingDevice,
-    ) {
-      final updatedDevice = existingDevice.copyWith(
-        name: name,
-        deviceSpecification: deviceSpecification,
-        locate: locate,
-      );
-      return deviceRepository.update(item: updatedDevice);
-    });
-    return result;
+    return deviceRepository
+        .getByHandle(handle: handle)
+        .flatMap((existingDeviceWithHandle) {
+          final updatedDevice = existingDeviceWithHandle.device.copyWith(
+            name: name,
+            deviceSpecification: deviceSpecification,
+            locate: locate,
+          );
+          return deviceRepository.update(item: updatedDevice, handle: handle);
+        })
+        .map((updatedDeviceWithHandle) => updatedDeviceWithHandle.device);
   }
 }

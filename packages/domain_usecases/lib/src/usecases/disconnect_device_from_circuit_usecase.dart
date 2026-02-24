@@ -13,9 +13,9 @@ class DisconnectDeviceFromCircuitUseCase {
            UpdateCircuitUseCase(circuitRepository: circuitRepository!);
   TaskEither<Failure, Unit> call({
     required Device device,
-    required Circuit circuit,
+    required CircuitWithHandle circuit,
   }) {
-    final deviceIndex = circuit.connectedDevices.indexOf(device);
+    final deviceIndex = circuit.circuit.connectedDevices.indexOf(device);
 
     if (deviceIndex == -1) {
       return TaskEither.left(
@@ -23,13 +23,22 @@ class DisconnectDeviceFromCircuitUseCase {
       );
     }
 
-    final updatedConnected = List<Device>.from(circuit.connectedDevices)
+    final updatedConnected = List<Device>.from(circuit.circuit.connectedDevices)
       ..removeAt(deviceIndex);
-    final updatedCircuit = Circuit(
-      handle: circuit.handle,
-      sourceDevice: circuit.sourceDevice,
+    final updatedCircuitEntity = Circuit(
+      name: circuit.circuit.name,
+      sourceDevice: circuit.circuit.sourceDevice,
       connectedDevices: updatedConnected,
+      stereotype: circuit.circuit.stereotype,
     );
-    return updateCircuitUseCase.call(circuit: updatedCircuit).map((_) => unit);
+    final updatedCircuitWithHandle = circuit.copyWith(
+      circuit: updatedCircuitEntity,
+    );
+    return updateCircuitUseCase
+        .call(
+          circuit: updatedCircuitWithHandle.circuit,
+          handle: updatedCircuitWithHandle.handle,
+        )
+        .map((_) => unit);
   }
 }

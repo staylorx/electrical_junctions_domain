@@ -18,8 +18,8 @@ class CreatePanelReportUseCase {
       final slots = circuits
           .where(
             (c) =>
-                c.stereoType == 'panel_slot' &&
-                c.sourceDevice.handle.value == panel.handle.value,
+                c.circuit.stereotype == 'panel_slot' &&
+                c.circuit.sourceDevice.handle!.value == panel.handle!.value,
           )
           .toList();
 
@@ -31,10 +31,10 @@ class CreatePanelReportUseCase {
 
       /// Executes `for`.
       for (final slot in slots) {
-        report.writeln('Slot ${slot.name}:');
+        report.writeln('Slot ${slot.circuit.name}:');
 
-        final circuitBreaker = slot.connectedDevices.isNotEmpty
-            ? slot.connectedDevices.first
+        final circuitBreaker = slot.circuit.connectedDevices.isNotEmpty
+            ? slot.circuit.connectedDevices.first
             : null;
 
         /// Executes `if`.
@@ -52,8 +52,9 @@ class CreatePanelReportUseCase {
           final slotCircuits = circuits
               .where(
                 (c) =>
-                    c.stereoType != 'panel_slot' &&
-                    c.sourceDevice.handle.value == circuitBreaker.handle.value,
+                    c.circuit.stereotype != 'panel_slot' &&
+                    c.circuit.sourceDevice.handle!.value ==
+                        circuitBreaker.handle!.value,
               )
               .toList();
 
@@ -63,7 +64,7 @@ class CreatePanelReportUseCase {
 
             /// Executes `for`.
             for (final circuit in slotCircuits) {
-              final deviceNames = circuit.connectedDevices
+              final deviceNames = circuit.circuit.connectedDevices
                   .map((d) => d.locate?.name ?? 'Unknown')
                   .join(', ');
               report.writeln(

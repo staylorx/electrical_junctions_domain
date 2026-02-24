@@ -5,6 +5,10 @@ import '../basic_crud_contract.dart';
 /// Provides CRUD operations for device specification catalog data.
 abstract class DeviceSpecificationRepository
     implements
-        BasicCrudContract<DeviceSpecification, DeviceSpecificationHandle> {
+        BasicCrudContract<
+          DeviceSpecification,
+          DeviceSpecificationHandle,
+          DeviceSpecificationWithHandle
+        > {
   // All CRUD operations inherited from BasicCrudContract
 }

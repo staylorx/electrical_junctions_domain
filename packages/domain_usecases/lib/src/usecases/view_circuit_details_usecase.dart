@@ -8,10 +8,11 @@ class ViewCircuitDetailsUseCase {
   /// Creates a [ViewCircuitDetailsUseCase] with the given [circuitRepository].
   ViewCircuitDetailsUseCase({required this.circuitRepository});
 
-  /// Retrieves the current details of the given [circuit].
-  TaskEither<Failure, Circuit> call({required Circuit circuit}) {
+  /// Retrieves the current details of the circuit with the given [handle].
+  TaskEither<Failure, Circuit> call({required CircuitHandle handle}) {
     return circuitRepository
-        .getByHandle(handle: circuit.handle)
-        .map((fetched) => fetched);
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .map((fetched) => fetched.circuit);
   }
 }

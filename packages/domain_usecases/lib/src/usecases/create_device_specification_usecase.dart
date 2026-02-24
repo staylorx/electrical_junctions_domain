@@ -4,12 +4,10 @@ import 'package:fpdart/fpdart.dart';
 /// Creates a new `DeviceSpecification` and saves it to the repository.
 class CreateDeviceSpecificationUseCase {
   final DeviceSpecificationRepository deviceSpecificationRepository;
-  final HandleGenerator _handleGenerator;
 
   CreateDeviceSpecificationUseCase({
     required this.deviceSpecificationRepository,
-    required HandleGenerator handleGenerator,
-  }) : _handleGenerator = handleGenerator;
+  });
 
   TaskEither<Failure, DeviceSpecification> call({
     required String typeId,
@@ -18,7 +16,6 @@ class CreateDeviceSpecificationUseCase {
     Map<String, dynamic> properties = const {},
   }) {
     final deviceSpecification = DeviceSpecification(
-      handle: _handleGenerator.generateDeviceSpecificationHandle(),
       typeId: typeId,
       modelNumber: modelNumber,
       manufacturer: manufacturer,

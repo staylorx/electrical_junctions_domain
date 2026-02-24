@@ -7,7 +7,13 @@ class UpdateLocateUseCase {
 
   UpdateLocateUseCase({required this.locateRepository});
 
-  TaskEither<Failure, Locate> call({required Locate locate}) {
-    return locateRepository.update(item: locate);
+  TaskEither<Failure, Locate> call({
+    required Locate locate,
+    required LocateHandle handle,
+  }) {
+    return locateRepository
+        .update(item: locate, handle: handle)
+        .mapLeft((failure) => failure)
+        .map((updated) => updated.locate);
   }
 }

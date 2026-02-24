@@ -7,7 +7,7 @@ class DeleteLocateUseCase {
 
   DeleteLocateUseCase({required this.locateRepository});
 
-  TaskEither<Failure, Unit> call({required Locate locate}) {
-    return locateRepository.deleteByHandle(handle: locate.handle);
+  TaskEither<Failure, Unit> call({required LocateHandle handle}) {
+    return locateRepository.deleteByHandle(handle: handle);
   }
 }

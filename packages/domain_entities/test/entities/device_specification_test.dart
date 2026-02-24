@@ -4,12 +4,10 @@ import 'package:shouldly/shouldly.dart';
 
 void main() {
   group('Given a DeviceSpecification entity', () {
-    late DeviceSpecificationHandle testHandle;
     late ManufacturerHandle mfgHandle;
     late Manufacturer testManufacturer;
 
     setUp(() {
-      testHandle = DeviceSpecificationHandle('spec-123');
       mfgHandle = ManufacturerHandle('mfg-456');
       testManufacturer = Manufacturer(handle: mfgHandle, name: 'Square D');
     });
@@ -17,13 +15,11 @@ void main() {
     group('When creating a device specification', () {
       test('Then it should create with required fields', () {
         final spec = DeviceSpecification(
-          handle: testHandle,
           typeId: 'panel',
           modelNumber: 'QO-200A',
           manufacturer: testManufacturer,
         );
 
-        spec.handle.should.be(testHandle);
         spec.typeId.should.be('panel');
         spec.modelNumber.should.be('QO-200A');
         spec.manufacturer.should.be(testManufacturer);
@@ -32,7 +28,6 @@ void main() {
 
       test('Then it should create with manufacturer', () {
         final spec = DeviceSpecification(
-          handle: testHandle,
           typeId: 'circuit_breaker',
           modelNumber: 'QO220',
           manufacturer: testManufacturer,
@@ -43,7 +38,6 @@ void main() {
 
       test('Then it should create with properties', () {
         final spec = DeviceSpecification(
-          handle: testHandle,
           typeId: 'panel',
           modelNumber: 'QO-200A',
           manufacturer: testManufacturer,
@@ -58,14 +52,12 @@ void main() {
     group('When checking equality', () {
       test('Then specs with same properties should be equal', () {
         final spec1 = DeviceSpecification(
-          handle: testHandle,
           typeId: 'panel',
           modelNumber: 'QO-200A',
           manufacturer: testManufacturer,
         );
 
         final spec2 = DeviceSpecification(
-          handle: testHandle,
           typeId: 'panel',
           modelNumber: 'QO-200A',
           manufacturer: testManufacturer,
@@ -76,14 +68,12 @@ void main() {
 
       test('Then specs with different model numbers should not be equal', () {
         final spec1 = DeviceSpecification(
-          handle: testHandle,
           typeId: 'panel',
           modelNumber: 'QO-200A',
           manufacturer: testManufacturer,
         );
 
         final spec2 = DeviceSpecification(
-          handle: testHandle,
           typeId: 'panel',
           modelNumber: 'QO-100A',
           manufacturer: testManufacturer,

@@ -8,6 +8,9 @@ class GetManufacturerByIdUseCase {
   GetManufacturerByIdUseCase({required this.manufacturerRepository});
 
   TaskEither<Failure, Manufacturer> call({required ManufacturerHandle handle}) {
-    return manufacturerRepository.getByHandle(handle: handle);
+    return manufacturerRepository
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .map((result) => result.manufacturer);
   }
 }

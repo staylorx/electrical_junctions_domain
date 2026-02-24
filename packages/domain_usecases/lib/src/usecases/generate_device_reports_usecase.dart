@@ -26,8 +26,8 @@ class GenerateDeviceReportsUseCase {
           /// Executes `for`.
           for (final device in devices) {
             final data = await _generateReport(
-              device: device,
-              circuits: circuits,
+              device: device.device,
+              circuits: circuits.map((c) => c.circuit).toList(),
             );
 
             if (data != null) {
@@ -129,8 +129,8 @@ class GenerateDeviceReportsUseCase {
     final slots = circuits
         .where(
           (c) =>
-              c.stereoType == 'panel_slot' &&
-              c.sourceDevice.handle.value == panel.handle.value,
+              c.stereotype == 'panel_slot' &&
+              c.sourceDevice.handle?.value == panel.handle?.value,
         )
         .toList();
 
@@ -306,8 +306,8 @@ class GenerateDeviceReportsUseCase {
     final breakerCircuits = circuits
         .where(
           (c) =>
-              c.stereoType != 'panel_slot' &&
-              c.sourceDevice.handle.value == breaker.handle.value,
+              c.stereotype != 'panel_slot' &&
+              c.sourceDevice.handle?.value == breaker.handle?.value,
         )
         .toList();
     final circuit = breakerCircuits.isNotEmpty ? breakerCircuits.first : null;
@@ -366,7 +366,7 @@ class GenerateDeviceReportsUseCase {
     while (current != null) {
       path.insert(0, current.name);
       final parentResult = await locateRepository.findParent(current).run();
-      current = parentResult.getOrElse((_) => null);
+      current = parentResult.getOrElse((_) => null)?.locate;
     }
 
     return path.join(' > ');
@@ -381,15 +381,15 @@ class GenerateDeviceReportsUseCase {
     Device? current = device;
     final visited = <String>{};
 
-    while (current != null && !visited.contains(current.handle.value)) {
-      visited.add(current.handle.value);
+    while (current != null && !visited.contains(current.handle!.value)) {
+      visited.add(current.handle!.value);
 
       // Find circuit where current device is connected
       final feedingCircuit = circuits.cast<Circuit?>().firstWhere(
         (c) =>
             c != null &&
             c.connectedDevices.any(
-              (d) => d.handle.value == current!.handle.value,
+              (d) => d.handle!.value == current!.handle!.value,
             ),
         orElse: () => null,
       );
@@ -413,8 +413,8 @@ class GenerateDeviceReportsUseCase {
     final downstream = <String>[];
     final directCircuits = circuits.where(
       (c) =>
-          c.sourceDevice.handle.value == device.handle.value &&
-          c.stereoType != 'panel_slot',
+          c.sourceDevice.handle!.value == device.handle!.value &&
+          c.stereotype != 'panel_slot',
     );
 
     for (final circuit in directCircuits) {
@@ -503,8 +503,8 @@ class GenerateDeviceReportsUseCase {
     final slots = circuits
         .where(
           (c) =>
-              c.stereoType == 'panel_slot' &&
-              c.sourceDevice.handle.value == panel.handle.value,
+              c.stereotype == 'panel_slot' &&
+              c.sourceDevice.handle!.value == panel.handle!.value,
         )
         .toList();
 

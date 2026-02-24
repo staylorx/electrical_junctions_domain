@@ -8,12 +8,11 @@ class ViewPanelStatusUseCase {
   /// Creates a [ViewPanelStatusUseCase] with the given [deviceRepository].
   ViewPanelStatusUseCase({required this.deviceRepository});
 
-  /// Retrieves the current status of the given panel [device].
-  TaskEither<Failure, Device> call({required Device device}) {
-    assert(
-      device.deviceSpecification.typeId == 'panel',
-      'Device must be a Panel',
-    );
-    return deviceRepository.getByHandle(handle: device.handle);
+  /// Retrieves the current status of the panel with the given [handle].
+  TaskEither<Failure, Device> call({required DeviceHandle handle}) {
+    return deviceRepository
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .map((result) => result.device);
   }
 }

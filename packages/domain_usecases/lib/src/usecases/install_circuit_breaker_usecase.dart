@@ -10,20 +10,16 @@ class InstallCircuitBreakerUseCase {
     UpdateCircuitUseCase? updateCircuitUseCase,
     CreateCircuitUseCase? createCircuitUseCase,
     CircuitRepository? circuitRepository,
-    HandleGenerator? handleGenerator,
   }) : updateCircuitUseCase =
            updateCircuitUseCase ??
            UpdateCircuitUseCase(circuitRepository: circuitRepository!),
        createCircuitUseCase =
            createCircuitUseCase ??
-           CreateCircuitUseCase(
-             circuitRepository: circuitRepository!,
-             handleGenerator: handleGenerator!,
-           );
+           CreateCircuitUseCase(circuitRepository: circuitRepository!);
 
   TaskEither<Failure, Circuit> call({
     required Device circuitBreaker,
-    required Circuit panelSlot,
+    required CircuitWithHandle panelSlot,
   }) {
     if (circuitBreaker.deviceSpecification.typeId != 'circuit_breaker') {
       return TaskEither.left(
@@ -31,33 +27,34 @@ class InstallCircuitBreakerUseCase {
       );
     }
 
-    if (panelSlot.stereoType != 'panel_slot') {
+    if (panelSlot.circuit.stereotype != 'panel_slot') {
       return TaskEither.left(
         UCValidationFailure('Circuit must be a panel_slot'),
       );
     }
 
-    if (panelSlot.connectedDevices.isNotEmpty) {
+    if (panelSlot.circuit.connectedDevices.isNotEmpty) {
       return TaskEither.left(
         UCValidationFailure('Panel slot already has a circuit breaker'),
       );
     }
 
-    if (panelSlot.sourceDevice.deviceSpecification.typeId != 'panel') {
+    if (panelSlot.circuit.sourceDevice.deviceSpecification.typeId != 'panel') {
       return TaskEither.left(
         UCValidationFailure('Panel slot source device must be a Panel'),
       );
     }
 
-    final updatedPanelSlot = panelSlot.copyWith(
+    final updatedPanelSlot = panelSlot.circuit.copyWith(
       connectedDevices: [circuitBreaker],
     );
 
-    return updateCircuitUseCase.call(circuit: updatedPanelSlot).flatMap((_) {
-      return createCircuitUseCase.call(
-        sourceDevice: circuitBreaker,
-        connectedDevices: [],
-      );
-    });
+    return updateCircuitUseCase
+        .call(circuit: updatedPanelSlot, handle: panelSlot.handle)
+        .flatMap((_) {
+          return createCircuitUseCase
+              .call(sourceDevice: circuitBreaker, connectedDevices: [])
+              .map((circuitWithHandle) => circuitWithHandle.circuit);
+        });
   }
 }

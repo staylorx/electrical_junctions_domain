@@ -17,26 +17,32 @@ class GetDeviceSpecificationPropertyUseCase {
     required DeviceSpecificationHandle handle,
     required String propertyKey,
   }) {
-    return deviceSpecificationRepository.getByHandle(handle: handle).flatMap((
-      deviceSpec,
-    ) {
-      return TaskEither.fromEither(
-        schemaService
-            .getPropertyAccessorFP(deviceSpec.typeId, propertyKey)
-            .flatMap((accessor) {
-              try {
-                final value = accessor.get(deviceSpec.properties);
-                return Right(value);
-              } catch (e) {
-                return Left(
-                  InvalidPropertyDefinitionFailure(
-                    propertyKey,
-                    'Failed to get property: $e',
-                  ),
-                );
-              }
-            }),
-      );
-    });
+    return deviceSpecificationRepository
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .flatMap((deviceSpec) {
+          return TaskEither.fromEither(
+            schemaService
+                .getPropertyAccessorFP(
+                  deviceSpec.deviceSpecification.typeId,
+                  propertyKey,
+                )
+                .flatMap((accessor) {
+                  try {
+                    final value = accessor.get(
+                      deviceSpec.deviceSpecification.properties,
+                    );
+                    return Right(value);
+                  } catch (e) {
+                    return Left(
+                      InvalidPropertyDefinitionFailure(
+                        propertyKey,
+                        'Failed to get property: $e',
+                      ),
+                    );
+                  }
+                }),
+          );
+        });
   }
 }

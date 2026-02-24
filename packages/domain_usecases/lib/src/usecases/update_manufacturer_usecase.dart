@@ -7,7 +7,13 @@ class UpdateManufacturerUseCase {
 
   UpdateManufacturerUseCase({required this.manufacturerRepository});
 
-  TaskEither<Failure, Manufacturer> call({required Manufacturer manufacturer}) {
-    return manufacturerRepository.update(item: manufacturer);
+  TaskEither<Failure, Manufacturer> call({
+    required Manufacturer manufacturer,
+    required ManufacturerHandle handle,
+  }) {
+    return manufacturerRepository
+        .update(item: manufacturer, handle: handle)
+        .mapLeft((failure) => failure)
+        .map((updated) => updated.manufacturer);
   }
 }

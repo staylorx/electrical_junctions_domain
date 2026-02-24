@@ -10,6 +10,8 @@ class GetDeviceByIdUseCase {
 
   /// Returns the device matching [handle] or a Failure if not found.
   TaskEither<Failure, Device> call({required DeviceHandle handle}) {
-    return deviceRepository.getByHandle(handle: handle);
+    return deviceRepository
+        .getByHandle(handle: handle)
+        .map((deviceWithHandle) => deviceWithHandle.device);
   }
 }

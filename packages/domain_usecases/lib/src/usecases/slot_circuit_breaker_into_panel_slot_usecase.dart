@@ -18,7 +18,7 @@ class SlotCircuitBreakerIntoPanelSlotUseCase {
   TaskEither<Failure, Circuit> call({
     required Device circuitBreaker,
     required Device panel,
-    required Circuit panelSlot,
+    required CircuitWithHandle panelSlot,
   }) {
     // Validate circuitBreaker is a CircuitBreaker
     if (circuitBreaker.deviceSpecification.typeId != 'circuit_breaker') {
@@ -33,7 +33,7 @@ class SlotCircuitBreakerIntoPanelSlotUseCase {
     }
 
     // Validate panelSlot is a panel_slot circuit
-    if (panelSlot.stereoType != 'panel_slot') {
+    if (panelSlot.circuit.stereotype != 'panel_slot') {
       return TaskEither.left(
         UCValidationFailure('Circuit must be a panel_slot'),
       );
@@ -44,14 +44,14 @@ class SlotCircuitBreakerIntoPanelSlotUseCase {
       final slots = circuits
           .where(
             (c) =>
-                c.stereoType == 'panel_slot' &&
-                c.sourceDevice.handle.value == panel.handle.value,
+                c.circuit.stereotype == 'panel_slot' &&
+                c.circuit.sourceDevice == panel,
           )
           .toList();
 
       // Find the target slot by matching code (name)
       final targetSlot = slots
-          .where((slot) => slot.name == panelSlot.name)
+          .where((slot) => slot.circuit.name == panelSlot.circuit.name)
           .firstOrNull;
 
       if (targetSlot == null) {
@@ -59,7 +59,7 @@ class SlotCircuitBreakerIntoPanelSlotUseCase {
       }
 
       // Check if the slot is available (not occupied)
-      if (targetSlot.connectedDevices.isNotEmpty) {
+      if (targetSlot.circuit.connectedDevices.isNotEmpty) {
         return TaskEither.left(UCValidationFailure('Slot is occupied'));
       }
 
@@ -76,13 +76,15 @@ class SlotCircuitBreakerIntoPanelSlotUseCase {
 
       // Create a new updated slot with the circuitBreaker assigned
       final updatedSlot = targetSlot.copyWith(
-        connectedDevices: [circuitBreaker],
+        circuit: targetSlot.circuit.copyWith(
+          connectedDevices: [circuitBreaker],
+        ),
       );
 
       // Save the updated slot via UpdateCircuitUseCase
       return updateCircuitUseCase
-          .call(circuit: updatedSlot)
-          .map((_) => updatedSlot);
+          .call(circuit: updatedSlot.circuit, handle: updatedSlot.handle)
+          .map((_) => updatedSlot.circuit);
     });
   }
 }

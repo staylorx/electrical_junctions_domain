@@ -13,6 +13,9 @@ class GetDeviceSpecificationByIdUseCase {
   TaskEither<Failure, DeviceSpecification> call({
     required DeviceSpecificationHandle handle,
   }) {
-    return deviceSpecificationRepository.getByHandle(handle: handle);
+    return deviceSpecificationRepository
+        .getByHandle(handle: handle)
+        .mapLeft((failure) => failure)
+        .map((result) => result.deviceSpecification);
   }
 }

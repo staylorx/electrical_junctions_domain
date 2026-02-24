@@ -4,19 +4,14 @@ import 'package:fpdart/fpdart.dart';
 /// Creates or saves a `Circuit` using the repository `save` method.
 class CreateCircuitUseCase {
   final CircuitRepository circuitRepository;
-  final HandleGenerator _handleGenerator;
 
-  CreateCircuitUseCase({
-    required this.circuitRepository,
-    required HandleGenerator handleGenerator,
-  }) : _handleGenerator = handleGenerator;
+  CreateCircuitUseCase({required this.circuitRepository});
 
-  TaskEither<Failure, Circuit> call({
+  TaskEither<Failure, CircuitWithHandle> call({
     required Device sourceDevice,
     List<Device> connectedDevices = const [],
   }) {
     final circuit = Circuit(
-      handle: _handleGenerator.generateCircuitHandle(),
       sourceDevice: sourceDevice,
       connectedDevices: connectedDevices,
     );

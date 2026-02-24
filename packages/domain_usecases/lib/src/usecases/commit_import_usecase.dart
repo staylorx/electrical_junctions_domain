@@ -65,8 +65,49 @@ class CommitImportUseCase {
 
       // -- Clear target if overwrite mode --
       if (mode == CommitMode.overwrite) {
-        // TODO: Implement clear all for target repositories
-        // For now, assume repositories handle upserts or we clear manually
+        // Clear all data in reverse dependency order to avoid constraint issues
+        final clearCircuits = await _circuitRepository.deleteAll().run();
+        if (clearCircuits.isLeft()) {
+          return Left(
+            UCDatabaseWriteFailure('Failed to clear circuits during overwrite'),
+          );
+        }
+
+        final clearDevices = await _deviceRepository.deleteAll().run();
+        if (clearDevices.isLeft()) {
+          return Left(
+            UCDatabaseWriteFailure('Failed to clear devices during overwrite'),
+          );
+        }
+
+        final clearDeviceSpecs = await _deviceSpecificationRepository
+            .deleteAll()
+            .run();
+        if (clearDeviceSpecs.isLeft()) {
+          return Left(
+            UCDatabaseWriteFailure(
+              'Failed to clear device specifications during overwrite',
+            ),
+          );
+        }
+
+        final clearLocates = await _locateRepository.deleteAll().run();
+        if (clearLocates.isLeft()) {
+          return Left(
+            UCDatabaseWriteFailure('Failed to clear locates during overwrite'),
+          );
+        }
+
+        final clearManufacturers = await _manufacturerRepository
+            .deleteAll()
+            .run();
+        if (clearManufacturers.isLeft()) {
+          return Left(
+            UCDatabaseWriteFailure(
+              'Failed to clear manufacturers during overwrite',
+            ),
+          );
+        }
       }
 
       // -- Write in order: manufacturers → locates → device specs → devices → circuits --

@@ -53,6 +53,8 @@ class CreateDeviceUseCase {
 
   /// Saves the device to the repository
   TaskEither<Failure, Device> _saveDevice({required Device device}) {
-    return _deviceRepository.create(item: device).map((_) => device);
+    return _deviceRepository
+        .create(item: device)
+        .map((deviceWithHandle) => device);
   }
 }
