@@ -1,5 +1,6 @@
-import '../../index.dart';
 import 'package:equatable/equatable.dart';
+import '../value_objects/handles/device_specification_handle.dart';
+import 'manufacturer.dart';
 
 class DeviceSpecificationWithHandle with EquatableMixin {
   final DeviceSpecificationHandle handle;
