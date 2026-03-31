@@ -1,4 +1,5 @@
 export 'circuit_validator.dart';
+export 'device_specification_validator.dart';
 export 'device_validator.dart';
 export 'locate_validator.dart';
 export 'manufacturer_validator.dart';
