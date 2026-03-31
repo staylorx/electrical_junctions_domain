@@ -43,6 +43,35 @@ void main() {
       });
     });
 
+    group('When executing with optional parent parameter', () {
+      test('Then it passes parent to the locate entity', () async {
+        // Arrange
+        final name = 'Room 102';
+        final parentLocate = Locate(name: 'Building A');
+        final expected = LocateWithHandle(
+          handle: LocateHandle('locate-2'),
+          locate: Locate(name: name, parentLocate: parentLocate),
+        );
+        when(
+          () => mockLocateRepository.create(item: any(named: 'item')),
+        ).thenReturn(TaskEither.right(expected));
+
+        // Act
+        final result = await useCase
+            .call(name: name, parentLocate: parentLocate)
+            .run();
+
+        // Should
+        result.fold(
+          (failure) => fail('Expected success, got failure: $failure'),
+          (locateWithHandle) => expect(locateWithHandle, equals(expected)),
+        );
+        verify(
+          () => mockLocateRepository.create(item: any(named: 'item')),
+        ).called(1);
+      });
+    });
+
     group('When repository returns failure', () {
       test('Then it propagates the failure', () async {
         // Arrange

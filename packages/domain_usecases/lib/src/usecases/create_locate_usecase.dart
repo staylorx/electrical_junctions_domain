@@ -7,8 +7,11 @@ class CreateLocateUseCase {
 
   CreateLocateUseCase({required this.locateRepository});
 
-  TaskEither<Failure, LocateWithHandle> call({required String name}) {
-    final locate = Locate(name: name);
+  TaskEither<Failure, LocateWithHandle> call({
+    required String name,
+    Locate? parentLocate,
+  }) {
+    final locate = Locate(name: name, parentLocate: parentLocate);
     return locateRepository.create(item: locate);
   }
 }
