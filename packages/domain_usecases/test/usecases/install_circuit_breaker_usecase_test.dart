@@ -62,10 +62,7 @@ void main() {
       manufacturer: manufacturer,
     );
     final breakerHandle = DeviceHandle('breaker-1');
-    final circuitBreaker = Device(
-      handle: breakerHandle,
-      deviceSpecification: breakerSpec,
-    );
+    final circuitBreaker = Device(deviceSpecification: breakerSpec);
     final panelSlot = Circuit(
       sourceDevice: panel,
       connectedDevices: [],
@@ -99,14 +96,17 @@ void main() {
           device: circuitBreaker,
         );
         when(
+          () => mockDeviceRepository.getAll(),
+        ).thenReturn(TaskEither.right([breakerWithHandle]));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(breakerWithHandle));
+        when(
           () => mockCircuitRepository.update(
             item: any(named: 'item'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.right(updatedPanelSlotWithHandle));
-        when(
-          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
-        ).thenReturn(TaskEither.right(breakerWithHandle));
         when(
           () => mockCircuitRepository.create(item: any(named: 'item')),
         ).thenReturn(TaskEither.right(newCircuitWithHandle));
@@ -216,6 +216,13 @@ void main() {
       test('Then it returns failure', () async {
         // Arrange
         final failure = DatastoreFailure('Update failed');
+        final breakerWithHandle = DeviceWithHandle(
+          handle: breakerHandle,
+          device: circuitBreaker,
+        );
+        when(
+          () => mockDeviceRepository.getAll(),
+        ).thenReturn(TaskEither.right([breakerWithHandle]));
         when(
           () => mockCircuitRepository.update(
             item: any(named: 'item'),
@@ -255,14 +262,17 @@ void main() {
         );
         final failure = DatastoreFailure('Create failed');
         when(
+          () => mockDeviceRepository.getAll(),
+        ).thenReturn(TaskEither.right([breakerWithHandle]));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(breakerWithHandle));
+        when(
           () => mockCircuitRepository.update(
             item: any(named: 'item'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.right(updatedPanelSlotWithHandle));
-        when(
-          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
-        ).thenReturn(TaskEither.right(breakerWithHandle));
         when(
           () => mockCircuitRepository.create(item: any(named: 'item')),
         ).thenReturn(TaskEither.left(failure));

@@ -32,29 +32,21 @@ class Device with EquatableMixin {
   final String? name;
   final DeviceSpecification deviceSpecification;
   final Locate? locate;
-  final DeviceHandle? handle;
 
-  Device({
-    this.name,
-    required this.deviceSpecification,
-    this.locate,
-    this.handle,
-  });
+  Device({this.name, required this.deviceSpecification, this.locate});
 
   Device copyWith({
     String? name,
     DeviceSpecification? deviceSpecification,
     Locate? locate,
-    DeviceHandle? handle,
   }) {
     return Device(
       name: name ?? this.name,
       deviceSpecification: deviceSpecification ?? this.deviceSpecification,
       locate: locate ?? this.locate,
-      handle: handle ?? this.handle,
     );
   }
 
   @override
-  List<Object?> get props => [name, deviceSpecification, locate, handle];
+  List<Object?> get props => [name, deviceSpecification, locate];
 }

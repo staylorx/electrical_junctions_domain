@@ -56,18 +56,9 @@ void main() {
     final device2Handle = DeviceHandle('dev-2');
     final newDeviceHandle = DeviceHandle('dev-3');
 
-    final device1 = Device(
-      handle: device1Handle,
-      deviceSpecification: deviceSpec,
-    );
-    final device2 = Device(
-      handle: device2Handle,
-      deviceSpecification: deviceSpec,
-    );
-    final newDevice = Device(
-      handle: newDeviceHandle,
-      deviceSpecification: deviceSpec,
-    );
+    final device1 = Device(deviceSpecification: deviceSpec);
+    final device2 = Device(deviceSpecification: deviceSpec);
+    final newDevice = Device(deviceSpecification: deviceSpec);
 
     final device1WithHandle = DeviceWithHandle(
       handle: device1Handle,

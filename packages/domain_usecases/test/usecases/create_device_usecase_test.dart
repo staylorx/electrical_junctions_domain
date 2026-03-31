@@ -8,18 +8,14 @@ class MockDeviceRepository extends Mock implements DeviceRepository {}
 
 class MockLocateRepository extends Mock implements LocateRepository {}
 
-class MockHandleGenerator extends Mock implements HandleGenerator {}
-
 void main() {
   late CreateDeviceUseCase useCase;
   late MockDeviceRepository mockDeviceRepository;
   late MockLocateRepository mockLocateRepository;
-  late MockHandleGenerator mockHandleGenerator;
 
   setUpAll(() {
     registerFallbackValue(
       Device(
-        handle: DeviceHandle('fallback'),
         deviceSpecification: DeviceSpecification(
           typeId: 'fallback',
           modelNumber: 'fallback',
@@ -33,11 +29,9 @@ void main() {
   setUp(() {
     mockDeviceRepository = MockDeviceRepository();
     mockLocateRepository = MockLocateRepository();
-    mockHandleGenerator = MockHandleGenerator();
     useCase = CreateDeviceUseCase(
       deviceRepository: mockDeviceRepository,
       locateRepository: mockLocateRepository,
-      handleGenerator: mockHandleGenerator,
     );
   });
 
@@ -57,9 +51,6 @@ void main() {
 
     setUp(() {
       when(
-        () => mockHandleGenerator.generateDeviceHandle(),
-      ).thenReturn(deviceHandle);
-      when(
         () => mockDeviceRepository.create(item: any(named: 'item')),
       ).thenReturn(TaskEither.right(expectedDeviceWithHandle));
     });
@@ -76,7 +67,6 @@ void main() {
         },
       );
 
-      verify(() => mockHandleGenerator.generateDeviceHandle()).called(1);
       verify(
         () => mockDeviceRepository.create(item: any(named: 'item')),
       ).called(1);
@@ -90,9 +80,23 @@ void main() {
         locate: locate,
       );
 
+      final deviceWithName = Device(
+        name: 'Test Device',
+        deviceSpecification: deviceSpec,
+        locate: locate,
+      );
+      final deviceWithNameAndHandle = DeviceWithHandle(
+        handle: deviceHandle,
+        device: deviceWithName,
+      );
+
       when(
         () => mockLocateRepository.getByHandle(handle: locateHandle),
       ).thenReturn(TaskEither.right(locateWithHandle));
+
+      when(
+        () => mockDeviceRepository.create(item: any(named: 'item')),
+      ).thenReturn(TaskEither.right(deviceWithNameAndHandle));
 
       final result = await useCase(
         name: 'Test Device',

@@ -19,7 +19,9 @@ class CreatePanelReportUseCase {
           .where(
             (c) =>
                 c.circuit.stereotype == 'panel_slot' &&
-                c.circuit.sourceDevice.handle!.value == panel.handle!.value,
+                (c.circuit.sourceDevice.deviceSpecification ==
+                        panel.deviceSpecification ||
+                    c.circuit.sourceDevice.name == panel.name),
           )
           .toList();
 
@@ -53,8 +55,9 @@ class CreatePanelReportUseCase {
               .where(
                 (c) =>
                     c.circuit.stereotype != 'panel_slot' &&
-                    c.circuit.sourceDevice.handle!.value ==
-                        circuitBreaker.handle!.value,
+                    (c.circuit.sourceDevice.deviceSpecification ==
+                            circuitBreaker.deviceSpecification ||
+                        c.circuit.sourceDevice.name == circuitBreaker.name),
               )
               .toList();
 

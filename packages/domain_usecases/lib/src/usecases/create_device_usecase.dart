@@ -10,15 +10,12 @@ import 'package:fpdart/fpdart.dart';
 class CreateDeviceUseCase {
   final DeviceRepository _deviceRepository;
   final LocateRepository _locateRepository;
-  final HandleGenerator _handleGenerator;
 
   CreateDeviceUseCase({
     required DeviceRepository deviceRepository,
     required LocateRepository locateRepository,
-    required HandleGenerator handleGenerator,
   }) : _deviceRepository = deviceRepository,
-       _locateRepository = locateRepository,
-       _handleGenerator = handleGenerator;
+       _locateRepository = locateRepository;
 
   /// Creates and saves a device
   ///
@@ -30,49 +27,39 @@ class CreateDeviceUseCase {
   }) {
     // If no locate handle, create device without location
     if (locateHandle == null) {
-      return _createDevice(
+      return _createAndSaveDevice(
         name: name,
         deviceSpecification: deviceSpecification,
         locate: null,
-      ).flatMap((device) => _saveDevice(device: device));
+      );
     }
 
     // Fetch the locate and then create the device with it
     return _locateRepository.getByHandle(handle: locateHandle).flatMap((
       locateWithHandle,
     ) {
-      return _createDevice(
+      return _createAndSaveDevice(
         name: name,
         deviceSpecification: deviceSpecification,
         locate: locateWithHandle.locate,
-      ).flatMap((device) => _saveDevice(device: device));
+      );
     });
   }
 
-  /// Creates a device instance directly
-  TaskEither<Failure, Device> _createDevice({
+  /// Creates and saves a device instance
+  TaskEither<Failure, Device> _createAndSaveDevice({
     String? name,
     required DeviceSpecification deviceSpecification,
     Locate? locate,
   }) {
-    return TaskEither.tryCatch(
-      () async {
-        return Device(
-          handle: _handleGenerator.generateDeviceHandle(),
-          name: name,
-          deviceSpecification: deviceSpecification,
-          locate: locate,
-        );
-      },
-      (error, stackTrace) =>
-          UCValidationFailure('Failed to create device: $error'),
+    final device = Device(
+      name: name,
+      deviceSpecification: deviceSpecification,
+      locate: locate,
     );
-  }
-
-  /// Saves the device to the repository
-  TaskEither<Failure, Device> _saveDevice({required Device device}) {
+    // Save to repository - repository will handle adding the handle
     return _deviceRepository
         .create(item: device)
-        .map((deviceWithHandle) => device);
+        .map((savedDeviceWithHandle) => savedDeviceWithHandle.device);
   }
 }

@@ -29,7 +29,6 @@ void main() {
       test('Then it returns success with report string', () async {
         // Arrange
         final panel = Device(
-          handle: DeviceHandle('panel-1'),
           deviceSpecification: DeviceSpecification(
             typeId: 'panel',
             modelNumber: 'QO-200A',
@@ -38,7 +37,6 @@ void main() {
           locate: Locate(name: 'Main Panel'),
         );
         final circuitBreaker = Device(
-          handle: DeviceHandle('cb-1'),
           deviceSpecification: DeviceSpecification(
             typeId: 'circuit_breaker',
             modelNumber: 'QO120',

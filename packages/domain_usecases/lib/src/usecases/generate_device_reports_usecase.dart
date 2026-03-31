@@ -19,15 +19,16 @@ class GenerateDeviceReportsUseCase {
 
   TaskEither<Failure, List<DeviceReportData>> call() {
     return deviceRepository.getAll().flatMap((devices) {
-      return circuitRepository.getAll().flatMap((circuits) {
+      return circuitRepository.getAll().flatMap((circuitsWithHandles) {
         return TaskEither(() async {
           final reports = <DeviceReportData>[];
 
           /// Executes `for`.
-          for (final device in devices) {
+          for (final deviceWithHandle in devices) {
             final data = await _generateReport(
-              device: device.device,
-              circuits: circuits.map((c) => c.circuit).toList(),
+              device: deviceWithHandle.device,
+              deviceHandle: deviceWithHandle.handle,
+              circuits: circuitsWithHandles.map((c) => c.circuit).toList(),
             );
 
             if (data != null) {
@@ -44,6 +45,7 @@ class GenerateDeviceReportsUseCase {
   /// Executes `_generateReport`.
   Future<DeviceReportData?> _generateReport({
     required Device device,
+    required DeviceHandle deviceHandle,
     required List<Circuit> circuits,
   }) async {
     final typeId = device.deviceSpecification.typeId;
@@ -87,7 +89,11 @@ class GenerateDeviceReportsUseCase {
     data.addAll(_calculatePanelMetrics(panel: device, circuits: circuits));
 
     final table = device.deviceSpecification.typeId == 'panel'
-        ? await _generatePanelTableString(panel: device, circuits: circuits)
+        ? await _generatePanelTableString(
+            panel: device,
+            panelHandle: deviceHandle,
+            circuits: circuits,
+          )
         : _generateDeviceTableString(device: device, circuits: circuits);
 
     return DeviceReportData(
@@ -116,6 +122,7 @@ class GenerateDeviceReportsUseCase {
 
   Future<String> _generatePanelTableString({
     required Device panel,
+    required DeviceHandle panelHandle,
     required List<Circuit> circuits,
   }) async {
     // Validate panel is a Panel
@@ -125,11 +132,15 @@ class GenerateDeviceReportsUseCase {
     );
 
     // Fetch slots - find all panel_slot circuits for this panel
+    // Note: We compare by name or handle value. Since sourceDevice doesn't have handle,
+    // we match by the panel name or deviceSpecification
     final slots = circuits
         .where(
           (c) =>
               c.stereotype == 'panel_slot' &&
-              c.sourceDevice.handle?.value == panel.handle?.value,
+              (c.sourceDevice.deviceSpecification ==
+                      panel.deviceSpecification ||
+                  c.sourceDevice.name == panel.name),
         )
         .toList();
 
@@ -179,6 +190,7 @@ class GenerateDeviceReportsUseCase {
           : null;
       final circuitStr = _getCircuitString(
         breaker: circuitBreaker,
+        breakerHandle: null, // Will be determined from circuits
         circuits: circuits,
       );
       slotLines.add('$slotCode: $circuitStr');
@@ -261,6 +273,7 @@ class GenerateDeviceReportsUseCase {
       final breaker = circuit.sourceDevice;
       final circuitStr = _getCircuitString(
         breaker: breaker,
+        breakerHandle: null, // Handle lookup done via device matching
         circuits: circuits,
       );
       final poles =
@@ -292,6 +305,7 @@ class GenerateDeviceReportsUseCase {
   /// Executes `_getCircuitString`.
   String _getCircuitString({
     required Device? breaker,
+    required DeviceHandle? breakerHandle,
     required List<Circuit> circuits,
   }) {
     if (breaker == null) return '';
@@ -302,11 +316,15 @@ class GenerateDeviceReportsUseCase {
       'Device must be a CircuitBreaker',
     );
 
+    if (breakerHandle == null) return '';
+
     final breakerCircuits = circuits
         .where(
           (c) =>
               c.stereotype != 'panel_slot' &&
-              c.sourceDevice.handle?.value == breaker.handle?.value,
+              (c.sourceDevice.deviceSpecification ==
+                      breaker.deviceSpecification ||
+                  c.sourceDevice.name == breaker.name),
         )
         .toList();
     final circuit = breakerCircuits.isNotEmpty ? breakerCircuits.first : null;
@@ -380,15 +398,19 @@ class GenerateDeviceReportsUseCase {
     Device? current = device;
     final visited = <String>{};
 
-    while (current != null && !visited.contains(current.handle!.value)) {
-      visited.add(current.handle!.value);
+    while (current != null) {
+      final deviceId = current.name ?? current.deviceSpecification.toString();
+      if (visited.contains(deviceId)) break;
+      visited.add(deviceId);
 
       // Find circuit where current device is connected
       final feedingCircuit = circuits.cast<Circuit?>().firstWhere(
         (c) =>
             c != null &&
             c.connectedDevices.any(
-              (d) => d.handle!.value == current!.handle!.value,
+              (d) =>
+                  d.name == current!.name &&
+                  d.deviceSpecification == current.deviceSpecification,
             ),
         orElse: () => null,
       );
@@ -412,7 +434,9 @@ class GenerateDeviceReportsUseCase {
     final downstream = <String>[];
     final directCircuits = circuits.where(
       (c) =>
-          c.sourceDevice.handle!.value == device.handle!.value &&
+          (c.sourceDevice.name == device.name &&
+              c.sourceDevice.deviceSpecification ==
+                  device.deviceSpecification) &&
           c.stereotype != 'panel_slot',
     );
 
@@ -503,7 +527,9 @@ class GenerateDeviceReportsUseCase {
         .where(
           (c) =>
               c.stereotype == 'panel_slot' &&
-              c.sourceDevice.handle!.value == panel.handle!.value,
+              (c.sourceDevice.deviceSpecification ==
+                      panel.deviceSpecification ||
+                  c.sourceDevice.name == panel.name),
         )
         .toList();
 

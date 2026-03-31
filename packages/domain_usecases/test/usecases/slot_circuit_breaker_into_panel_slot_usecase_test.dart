@@ -56,7 +56,7 @@ void main() {
       manufacturer: manufacturer,
     );
     final panelHandle = DeviceHandle('panel-1');
-    final panel = Device(handle: panelHandle, deviceSpecification: panelSpec);
+    final panel = Device(deviceSpecification: panelSpec);
     final panelWithHandle = DeviceWithHandle(
       handle: panelHandle,
       device: panel,
@@ -68,10 +68,7 @@ void main() {
       manufacturer: manufacturer,
     );
     final breakerHandle = DeviceHandle('breaker-1');
-    final circuitBreaker = Device(
-      handle: breakerHandle,
-      deviceSpecification: breakerSpec,
-    );
+    final circuitBreaker = Device(deviceSpecification: breakerSpec);
     final breakerWithHandle = DeviceWithHandle(
       handle: breakerHandle,
       device: circuitBreaker,
@@ -137,10 +134,7 @@ void main() {
     group('When device is not a circuit breaker', () {
       test('Then it returns validation failure', () async {
         // Arrange
-        final nonBreaker = Device(
-          handle: breakerHandle,
-          deviceSpecification: panelSpec,
-        );
+        final nonBreaker = Device(deviceSpecification: panelSpec);
         final nonBreakerWithHandle = DeviceWithHandle(
           handle: breakerHandle,
           device: nonBreaker,
@@ -169,10 +163,7 @@ void main() {
     group('When device is not a panel', () {
       test('Then it returns validation failure', () async {
         // Arrange
-        final nonPanel = Device(
-          handle: panelHandle,
-          deviceSpecification: breakerSpec,
-        );
+        final nonPanel = Device(deviceSpecification: breakerSpec);
         final nonPanelWithHandle = DeviceWithHandle(
           handle: panelHandle,
           device: nonPanel,

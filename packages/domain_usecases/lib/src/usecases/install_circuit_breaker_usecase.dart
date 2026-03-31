@@ -60,21 +60,36 @@ class InstallCircuitBreakerUseCase {
       connectedDevices: [circuitBreaker],
     );
 
-    // Get the circuit breaker handle from the device or repository
-    final breakerHandle = circuitBreaker.handle;
-    if (breakerHandle == null) {
-      return TaskEither.left(
-        UCValidationFailure('Circuit breaker device must have a handle'),
-      );
-    }
+    // To create a circuit for the breaker, we need its handle
+    // Fetch from the device repository to find the breaker's handle
+    return deviceRepository.getAll().flatMap((devicesWithHandles) {
+      // Find the breaker's handle by matching device specs
+      DeviceWithHandle? breakerWithHandle;
+      try {
+        breakerWithHandle = devicesWithHandles.firstWhere(
+          (dwh) =>
+              dwh.device.deviceSpecification ==
+                  circuitBreaker.deviceSpecification &&
+              dwh.device.name == circuitBreaker.name,
+        );
+      } catch (_) {
+        breakerWithHandle = null;
+      }
 
-    return updateCircuitUseCase
-        .call(circuit: updatedPanelSlot, handle: panelSlot.handle)
-        .flatMap((_) {
-          return createCircuitUseCase.call(
-            sourceDeviceHandle: breakerHandle,
-            connectedDeviceHandles: [],
-          );
-        });
+      if (breakerWithHandle == null) {
+        return TaskEither<Failure, CircuitWithHandle>.left(
+          UCValidationFailure('Circuit breaker not found in repository'),
+        );
+      }
+
+      return updateCircuitUseCase
+          .call(circuit: updatedPanelSlot, handle: panelSlot.handle)
+          .flatMap((_) {
+            return createCircuitUseCase.call(
+              sourceDeviceHandle: breakerWithHandle!.handle,
+              connectedDeviceHandles: [],
+            );
+          });
+    });
   }
 }

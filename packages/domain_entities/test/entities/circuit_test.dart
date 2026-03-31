@@ -4,22 +4,17 @@ import 'package:shouldly/shouldly.dart';
 
 void main() {
   group('Given a Circuit entity', () {
-    late DeviceHandle sourceHandle;
     late Device sourceDevice;
     late DeviceSpecification testSpec;
 
     setUp(() {
-      sourceHandle = DeviceHandle('device-456');
       final manufacturer = Manufacturer(name: 'Square D');
       testSpec = DeviceSpecification(
         typeId: 'panel',
         modelNumber: 'QO-200A',
         manufacturer: manufacturer,
       );
-      sourceDevice = Device(
-        handle: sourceHandle,
-        deviceSpecification: testSpec,
-      );
+      sourceDevice = Device(deviceSpecification: testSpec);
     });
 
     group('When creating a circuit', () {
@@ -36,10 +31,7 @@ void main() {
       });
 
       test('Then it should create with connected devices', () {
-        final connectedDevice = Device(
-          handle: DeviceHandle('connected-1'),
-          deviceSpecification: testSpec,
-        );
+        final connectedDevice = Device(deviceSpecification: testSpec);
 
         final circuit = Circuit(
           sourceDevice: sourceDevice,

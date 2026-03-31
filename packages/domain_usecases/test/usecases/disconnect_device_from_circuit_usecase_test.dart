@@ -52,10 +52,7 @@ void main() {
       manufacturer: manufacturer,
     );
     final deviceHandle = DeviceHandle('dev-1');
-    final device = Device(
-      handle: deviceHandle,
-      deviceSpecification: deviceSpec,
-    );
+    final device = Device(deviceSpecification: deviceSpec);
     final deviceWithHandle = DeviceWithHandle(
       handle: deviceHandle,
       device: device,
