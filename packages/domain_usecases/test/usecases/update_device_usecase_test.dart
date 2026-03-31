@@ -41,6 +41,7 @@ void main() {
       name: 'Old Name',
       deviceSpecification: deviceSpec,
     );
+    // ignore: unused_local_variable
     final existingDeviceWithHandle = DeviceWithHandle(
       handle: handle,
       device: existingDevice,
