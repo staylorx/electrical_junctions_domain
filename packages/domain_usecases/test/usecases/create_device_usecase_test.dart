@@ -6,11 +6,14 @@ import 'package:fpdart/fpdart.dart';
 // Generate mocks
 class MockDeviceRepository extends Mock implements DeviceRepository {}
 
+class MockLocateRepository extends Mock implements LocateRepository {}
+
 class MockHandleGenerator extends Mock implements HandleGenerator {}
 
 void main() {
   late CreateDeviceUseCase useCase;
   late MockDeviceRepository mockDeviceRepository;
+  late MockLocateRepository mockLocateRepository;
   late MockHandleGenerator mockHandleGenerator;
 
   setUpAll(() {
@@ -24,13 +27,16 @@ void main() {
         ),
       ),
     );
+    registerFallbackValue(LocateHandle('fallback'));
   });
 
   setUp(() {
     mockDeviceRepository = MockDeviceRepository();
+    mockLocateRepository = MockLocateRepository();
     mockHandleGenerator = MockHandleGenerator();
     useCase = CreateDeviceUseCase(
       deviceRepository: mockDeviceRepository,
+      locateRepository: mockLocateRepository,
       handleGenerator: mockHandleGenerator,
     );
   });
@@ -76,13 +82,22 @@ void main() {
       ).called(1);
     });
 
-    test('should create device with all fields', () async {
+    test('should create device with locate handle', () async {
+      final locateHandle = LocateHandle('locate-1');
       final locate = Locate(name: 'Room 101');
+      final locateWithHandle = LocateWithHandle(
+        handle: locateHandle,
+        locate: locate,
+      );
+
+      when(
+        () => mockLocateRepository.getByHandle(handle: locateHandle),
+      ).thenReturn(TaskEither.right(locateWithHandle));
 
       final result = await useCase(
         name: 'Test Device',
         deviceSpecification: deviceSpec,
-        locate: locate,
+        locateHandle: locateHandle,
       ).run();
 
       result.fold(
@@ -92,6 +107,10 @@ void main() {
           expect(device.locate, equals(locate));
         },
       );
+
+      verify(
+        () => mockLocateRepository.getByHandle(handle: locateHandle),
+      ).called(1);
     });
 
     test('should return failure when repository create fails', () async {

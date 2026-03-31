@@ -46,7 +46,8 @@ void main() {
         // Should
         result.fold(
           (failure) => fail('Expected success, got failure: $failure'),
-          (fetchedDevice) => expect(fetchedDevice, equals(device)),
+          (fetchedDeviceWithHandle) =>
+              expect(fetchedDeviceWithHandle, equals(deviceWithHandle)),
         );
         verify(
           () => mockDeviceRepository.getByHandle(handle: handle),

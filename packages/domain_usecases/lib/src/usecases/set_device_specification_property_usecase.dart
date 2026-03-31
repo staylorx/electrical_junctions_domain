@@ -13,7 +13,7 @@ class SetDeviceSpecificationPropertyUseCase {
     required this.schemaService,
   });
 
-  TaskEither<Failure, Unit> call({
+  TaskEither<Failure, DeviceSpecificationWithHandle> call({
     required DeviceSpecificationHandle handle,
     required String propertyKey,
     required dynamic value,
@@ -60,10 +60,10 @@ class SetDeviceSpecificationPropertyUseCase {
                   }
                 }),
           ).flatMap((updatedDeviceSpec) {
-            return deviceSpecificationRepository
-                .update(item: updatedDeviceSpec, handle: handle)
-                .mapLeft((failure) => failure)
-                .map((_) => unit);
+            return deviceSpecificationRepository.update(
+              item: updatedDeviceSpec,
+              handle: handle,
+            );
           });
         });
   }

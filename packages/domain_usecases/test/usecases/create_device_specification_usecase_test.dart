@@ -7,9 +7,13 @@ import 'package:fpdart/fpdart.dart';
 class MockDeviceSpecificationRepository extends Mock
     implements DeviceSpecificationRepository {}
 
+class MockManufacturerRepository extends Mock
+    implements ManufacturerRepository {}
+
 void main() {
   late CreateDeviceSpecificationUseCase useCase;
   late MockDeviceSpecificationRepository mockDeviceSpecificationRepository;
+  late MockManufacturerRepository mockManufacturerRepository;
 
   setUpAll(() {
     registerFallbackValue(
@@ -20,27 +24,28 @@ void main() {
         properties: {},
       ),
     );
-  });
-
-  setUp(() {
-    mockDeviceSpecificationRepository = MockDeviceSpecificationRepository();
-    useCase = CreateDeviceSpecificationUseCase(
-      deviceSpecificationRepository: mockDeviceSpecificationRepository,
-    );
+    registerFallbackValue(ManufacturerHandle('fallback'));
   });
 
   group('Given a CreateDeviceSpecificationUseCase', () {
     setUp(() {
       mockDeviceSpecificationRepository = MockDeviceSpecificationRepository();
+      mockManufacturerRepository = MockManufacturerRepository();
       useCase = CreateDeviceSpecificationUseCase(
         deviceSpecificationRepository: mockDeviceSpecificationRepository,
+        manufacturerRepository: mockManufacturerRepository,
       );
     });
 
     group('When executing with valid input', () {
       test('Then it returns success with expected data', () async {
         // Arrange
+        final manufacturerHandle = ManufacturerHandle('mfg-1');
         final manufacturer = Manufacturer(name: 'Square D');
+        final manufacturerWithHandle = ManufacturerWithHandle(
+          handle: manufacturerHandle,
+          manufacturer: manufacturer,
+        );
         final typeId = 'panel';
         final modelNumber = 'QO-200A';
         final properties = <String, dynamic>{'ampRating': 200};
@@ -55,6 +60,11 @@ void main() {
           deviceSpecification: expected,
         );
         when(
+          () => mockManufacturerRepository.getByHandle(
+            handle: manufacturerHandle,
+          ),
+        ).thenReturn(TaskEither.right(manufacturerWithHandle));
+        when(
           () => mockDeviceSpecificationRepository.create(
             item: any(named: 'item'),
           ),
@@ -65,7 +75,7 @@ void main() {
             .call(
               typeId: typeId,
               modelNumber: modelNumber,
-              manufacturer: manufacturer,
+              manufacturerHandle: manufacturerHandle,
               properties: properties,
             )
             .run();
@@ -73,8 +83,13 @@ void main() {
         // Should
         result.fold(
           (failure) => fail('Expected success, got failure: $failure'),
-          (deviceSpec) => expect(deviceSpec, equals(expected)),
+          (deviceSpec) => expect(deviceSpec, equals(expectedWithHandle)),
         );
+        verify(
+          () => mockManufacturerRepository.getByHandle(
+            handle: manufacturerHandle,
+          ),
+        ).called(1);
         verify(
           () => mockDeviceSpecificationRepository.create(
             item: any(named: 'item'),
@@ -86,8 +101,18 @@ void main() {
     group('When repository returns failure', () {
       test('Then it propagates the failure', () async {
         // Arrange
+        final manufacturerHandle = ManufacturerHandle('mfg-1');
         final manufacturer = Manufacturer(name: 'Square D');
+        final manufacturerWithHandle = ManufacturerWithHandle(
+          handle: manufacturerHandle,
+          manufacturer: manufacturer,
+        );
         final failure = DatastoreFailure('Database error');
+        when(
+          () => mockManufacturerRepository.getByHandle(
+            handle: manufacturerHandle,
+          ),
+        ).thenReturn(TaskEither.right(manufacturerWithHandle));
         when(
           () => mockDeviceSpecificationRepository.create(
             item: any(named: 'item'),
@@ -99,7 +124,7 @@ void main() {
             .call(
               typeId: 'panel',
               modelNumber: 'QO-200A',
-              manufacturer: manufacturer,
+              manufacturerHandle: manufacturerHandle,
             )
             .run();
 

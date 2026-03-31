@@ -68,7 +68,7 @@ void main() {
           // Should
           result.fold(
             (_) => fail('Expected right'),
-            (r) => r.should.be(updatedDeviceSpec),
+            (r) => r.should.be(deviceSpecWithHandle),
           );
           verify(
             () => mockDeviceSpecificationRepository.update(

@@ -46,7 +46,7 @@ void main() {
         // Should
         result.fold(
           (l) => throw 'Expected right, but got left: $l',
-          (r) => r.should.be(updatedLocate),
+          (r) => r.should.be(locateWithHandle),
         );
         verify(
           () => mockLocateRepository.update(item: locate, handle: handle),

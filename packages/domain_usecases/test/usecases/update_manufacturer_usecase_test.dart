@@ -51,7 +51,7 @@ void main() {
         // Should
         result.fold(
           (l) => throw 'Expected right, but got left: $l',
-          (r) => r.should.be(updatedManufacturer),
+          (r) => r.should.be(manufacturerWithHandle),
         );
         verify(
           () => mockManufacturerRepository.update(

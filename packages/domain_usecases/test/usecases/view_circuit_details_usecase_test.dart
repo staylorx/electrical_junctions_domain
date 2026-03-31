@@ -49,7 +49,8 @@ void main() {
         // Should
         result.fold(
           (failure) => fail('Expected success, got failure: $failure'),
-          (fetchedCircuit) => expect(fetchedCircuit, equals(circuit)),
+          (fetchedCircuitWithHandle) =>
+              expect(fetchedCircuitWithHandle, equals(circuitWithHandle)),
         );
         verify(
           () => mockCircuitRepository.getByHandle(handle: handle),

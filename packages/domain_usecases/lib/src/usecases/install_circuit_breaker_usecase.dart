@@ -2,22 +2,33 @@ import '../../index.dart';
 import 'package:fpdart/fpdart.dart';
 
 /// Represents the `InstallCircuitBreakerUseCase` class.
+///
+/// This usecase installs a circuit breaker into a panel slot circuit by:
+/// 1. Validating the circuit breaker device
+/// 2. Updating the panel slot circuit with the breaker
+/// 3. Creating a new circuit for the breaker
 class InstallCircuitBreakerUseCase {
   final UpdateCircuitUseCase updateCircuitUseCase;
   final CreateCircuitUseCase createCircuitUseCase;
+  final DeviceRepository deviceRepository;
 
   InstallCircuitBreakerUseCase({
     UpdateCircuitUseCase? updateCircuitUseCase,
     CreateCircuitUseCase? createCircuitUseCase,
     CircuitRepository? circuitRepository,
+    DeviceRepository? deviceRepository,
   }) : updateCircuitUseCase =
            updateCircuitUseCase ??
            UpdateCircuitUseCase(circuitRepository: circuitRepository!),
        createCircuitUseCase =
            createCircuitUseCase ??
-           CreateCircuitUseCase(circuitRepository: circuitRepository!);
+           CreateCircuitUseCase(
+             circuitRepository: circuitRepository!,
+             deviceRepository: deviceRepository!,
+           ),
+       deviceRepository = deviceRepository!;
 
-  TaskEither<Failure, Circuit> call({
+  TaskEither<Failure, CircuitWithHandle> call({
     required Device circuitBreaker,
     required CircuitWithHandle panelSlot,
   }) {
@@ -49,12 +60,21 @@ class InstallCircuitBreakerUseCase {
       connectedDevices: [circuitBreaker],
     );
 
+    // Get the circuit breaker handle from the device or repository
+    final breakerHandle = circuitBreaker.handle;
+    if (breakerHandle == null) {
+      return TaskEither.left(
+        UCValidationFailure('Circuit breaker device must have a handle'),
+      );
+    }
+
     return updateCircuitUseCase
         .call(circuit: updatedPanelSlot, handle: panelSlot.handle)
         .flatMap((_) {
-          return createCircuitUseCase
-              .call(sourceDevice: circuitBreaker, connectedDevices: [])
-              .map((circuitWithHandle) => circuitWithHandle.circuit);
+          return createCircuitUseCase.call(
+            sourceDeviceHandle: breakerHandle,
+            connectedDeviceHandles: [],
+          );
         });
   }
 }

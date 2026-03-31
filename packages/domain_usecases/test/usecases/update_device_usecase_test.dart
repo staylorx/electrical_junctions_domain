@@ -47,7 +47,7 @@ void main() {
     );
 
     group('When executing with valid input', () {
-      test('Then it returns success with updated device', () async {
+      test('Then it returns success with updated device and handle', () async {
         // Arrange
         final newDeviceSpec = DeviceSpecification(
           typeId: 'breaker',
@@ -63,9 +63,6 @@ void main() {
           device: updatedDevice,
         );
         when(
-          () => mockDeviceRepository.getByHandle(handle: any(named: 'handle')),
-        ).thenReturn(TaskEither.right(existingDeviceWithHandle));
-        when(
           () => mockDeviceRepository.update(
             item: any(named: 'item'),
             handle: any(named: 'handle'),
@@ -74,21 +71,14 @@ void main() {
 
         // Act
         final result = await useCase
-            .call(
-              name: 'New Name',
-              deviceSpecification: newDeviceSpec,
-              handle: handle,
-            )
+            .call(device: updatedDevice, handle: handle)
             .run();
 
         // Should
         result.fold(
           (_) => fail('Expected right'),
-          (r) => r.should.be(updatedDevice),
+          (r) => r.should.be(updatedDeviceWithHandle),
         );
-        verify(
-          () => mockDeviceRepository.getByHandle(handle: handle),
-        ).called(1);
         verify(
           () =>
               mockDeviceRepository.update(item: updatedDevice, handle: handle),
@@ -96,35 +86,14 @@ void main() {
       });
     });
 
-    group('When entity not found', () {
-      test('Then it returns not found failure', () async {
+    group('When repository returns not found failure', () {
+      test('Then it propagates the not found failure', () async {
         // Arrange
         final failure = NotFoundFailure('Device not found');
-        when(
-          () => mockDeviceRepository.getByHandle(handle: any(named: 'handle')),
-        ).thenReturn(TaskEither.left(failure));
-
-        // Act
-        final result = await useCase
-            .call(
-              name: 'New Name',
-              deviceSpecification: deviceSpec,
-              handle: handle,
-            )
-            .run();
-
-        // Should
-        result.fold((l) => l.should.be(failure), (_) => fail('Expected left'));
-      });
-    });
-
-    group('When repository returns failure', () {
-      test('Then it propagates the failure', () async {
-        // Arrange
-        final failure = DatastoreFailure('Database error');
-        when(
-          () => mockDeviceRepository.getByHandle(handle: any(named: 'handle')),
-        ).thenReturn(TaskEither.right(existingDeviceWithHandle));
+        final updatedDevice = Device(
+          name: 'New Name',
+          deviceSpecification: deviceSpec,
+        );
         when(
           () => mockDeviceRepository.update(
             item: any(named: 'item'),
@@ -134,11 +103,32 @@ void main() {
 
         // Act
         final result = await useCase
-            .call(
-              name: 'New Name',
-              deviceSpecification: deviceSpec,
-              handle: handle,
-            )
+            .call(device: updatedDevice, handle: handle)
+            .run();
+
+        // Should
+        result.fold((l) => l.should.be(failure), (_) => fail('Expected left'));
+      });
+    });
+
+    group('When repository returns datastore failure', () {
+      test('Then it propagates the failure', () async {
+        // Arrange
+        final failure = DatastoreFailure('Database error');
+        final updatedDevice = Device(
+          name: 'New Name',
+          deviceSpecification: deviceSpec,
+        );
+        when(
+          () => mockDeviceRepository.update(
+            item: any(named: 'item'),
+            handle: any(named: 'handle'),
+          ),
+        ).thenReturn(TaskEither.left(failure));
+
+        // Act
+        final result = await useCase
+            .call(device: updatedDevice, handle: handle)
             .run();
 
         // Should

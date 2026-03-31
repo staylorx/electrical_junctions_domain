@@ -6,9 +6,15 @@ import 'package:fpdart/fpdart.dart';
 // Generate mocks
 class MockCircuitRepository extends Mock implements CircuitRepository {}
 
+class MockDeviceRepository extends Mock implements DeviceRepository {}
+
+class MockUpdateCircuitUseCase extends Mock implements UpdateCircuitUseCase {}
+
 void main() {
   late ConnectDeviceToCircuitUseCase useCase;
   late MockCircuitRepository mockCircuitRepository;
+  late MockDeviceRepository mockDeviceRepository;
+  late MockUpdateCircuitUseCase mockUpdateCircuitUseCase;
 
   setUpAll(() {
     registerFallbackValue(
@@ -24,12 +30,17 @@ void main() {
       ),
     );
     registerFallbackValue(CircuitHandle('fallback'));
+    registerFallbackValue(DeviceHandle('fallback'));
   });
 
   setUp(() {
     mockCircuitRepository = MockCircuitRepository();
+    mockDeviceRepository = MockDeviceRepository();
+    mockUpdateCircuitUseCase = MockUpdateCircuitUseCase();
     useCase = ConnectDeviceToCircuitUseCase(
       circuitRepository: mockCircuitRepository,
+      deviceRepository: mockDeviceRepository,
+      updateCircuitUseCase: mockUpdateCircuitUseCase,
     );
   });
 
@@ -40,7 +51,15 @@ void main() {
       modelNumber: 'QO-20',
       manufacturer: manufacturer,
     );
-    final device = Device(deviceSpecification: deviceSpec);
+    final deviceHandle = DeviceHandle('dev-1');
+    final device = Device(
+      handle: deviceHandle,
+      deviceSpecification: deviceSpec,
+    );
+    final deviceWithHandle = DeviceWithHandle(
+      handle: deviceHandle,
+      device: device,
+    );
     final sourceDevice = Device(deviceSpecification: deviceSpec);
     final circuit = Circuit(sourceDevice: sourceDevice, connectedDevices: []);
     final circuitWithHandle = CircuitWithHandle(
@@ -57,15 +76,18 @@ void main() {
           circuit: updatedCircuit,
         );
         when(
-          () => mockCircuitRepository.update(
-            item: any(named: 'item'),
+          () => mockDeviceRepository.getByHandle(handle: deviceHandle),
+        ).thenReturn(TaskEither.right(deviceWithHandle));
+        when(
+          () => mockUpdateCircuitUseCase.call(
+            circuit: any(named: 'circuit'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.right(updatedCircuitWithHandle));
 
         // Act
         final result = await useCase
-            .call(device: device, circuit: circuitWithHandle)
+            .call(deviceHandle: deviceHandle, circuit: circuitWithHandle)
             .run();
 
         // Should
@@ -74,9 +96,12 @@ void main() {
           (unit) => expect(unit, equals(unit)),
         );
         verify(
-          () => mockCircuitRepository.update(
-            item: any(
-              named: 'item',
+          () => mockDeviceRepository.getByHandle(handle: deviceHandle),
+        ).called(1);
+        verify(
+          () => mockUpdateCircuitUseCase.call(
+            circuit: any(
+              named: 'circuit',
               that: predicate<Circuit>(
                 (c) => c.connectedDevices.contains(device),
               ),
@@ -93,10 +118,13 @@ void main() {
         final circuitWithConnected = circuitWithHandle.copyWith(
           circuit: circuit.copyWith(connectedDevices: [device]),
         );
+        when(
+          () => mockDeviceRepository.getByHandle(handle: deviceHandle),
+        ).thenReturn(TaskEither.right(deviceWithHandle));
 
         // Act
         final result = await useCase
-            .call(device: device, circuit: circuitWithConnected)
+            .call(deviceHandle: deviceHandle, circuit: circuitWithConnected)
             .run();
 
         // Should
@@ -112,15 +140,18 @@ void main() {
         // Arrange
         final failure = DatastoreFailure('Update failed');
         when(
-          () => mockCircuitRepository.update(
-            item: any(named: 'item'),
+          () => mockDeviceRepository.getByHandle(handle: deviceHandle),
+        ).thenReturn(TaskEither.right(deviceWithHandle));
+        when(
+          () => mockUpdateCircuitUseCase.call(
+            circuit: any(named: 'circuit'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.left(failure));
 
         // Act
         final result = await useCase
-            .call(device: device, circuit: circuitWithHandle)
+            .call(deviceHandle: deviceHandle, circuit: circuitWithHandle)
             .run();
 
         // Should

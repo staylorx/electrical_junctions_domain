@@ -43,33 +43,48 @@ void main() {
       });
     });
 
-    group('When executing with optional parent parameter', () {
-      test('Then it passes parent to the locate entity', () async {
-        // Arrange
-        final name = 'Room 102';
-        final parentLocate = Locate(name: 'Building A');
-        final expected = LocateWithHandle(
-          handle: LocateHandle('locate-2'),
-          locate: Locate(name: name, parentLocate: parentLocate),
-        );
-        when(
-          () => mockLocateRepository.create(item: any(named: 'item')),
-        ).thenReturn(TaskEither.right(expected));
+    group('When executing with optional parent handle parameter', () {
+      test(
+        'Then it fetches the parent and passes it to the locate entity',
+        () async {
+          // Arrange
+          final name = 'Room 102';
+          final parentHandle = LocateHandle('locate-1');
+          final parentLocate = Locate(name: 'Building A');
+          final parentLocateWithHandle = LocateWithHandle(
+            handle: parentHandle,
+            locate: parentLocate,
+          );
+          final expected = LocateWithHandle(
+            handle: LocateHandle('locate-2'),
+            locate: Locate(name: name, parentLocate: parentLocate),
+          );
 
-        // Act
-        final result = await useCase
-            .call(name: name, parentLocate: parentLocate)
-            .run();
+          when(
+            () => mockLocateRepository.getByHandle(handle: parentHandle),
+          ).thenReturn(TaskEither.right(parentLocateWithHandle));
+          when(
+            () => mockLocateRepository.create(item: any(named: 'item')),
+          ).thenReturn(TaskEither.right(expected));
 
-        // Should
-        result.fold(
-          (failure) => fail('Expected success, got failure: $failure'),
-          (locateWithHandle) => expect(locateWithHandle, equals(expected)),
-        );
-        verify(
-          () => mockLocateRepository.create(item: any(named: 'item')),
-        ).called(1);
-      });
+          // Act
+          final result = await useCase
+              .call(name: name, parentLocateHandle: parentHandle)
+              .run();
+
+          // Should
+          result.fold(
+            (failure) => fail('Expected success, got failure: $failure'),
+            (locateWithHandle) => expect(locateWithHandle, equals(expected)),
+          );
+          verify(
+            () => mockLocateRepository.getByHandle(handle: parentHandle),
+          ).called(1);
+          verify(
+            () => mockLocateRepository.create(item: any(named: 'item')),
+          ).called(1);
+        },
+      );
     });
 
     group('When repository returns failure', () {

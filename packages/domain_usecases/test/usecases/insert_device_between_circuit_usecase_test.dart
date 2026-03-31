@@ -6,9 +6,15 @@ import 'package:fpdart/fpdart.dart';
 // Generate mocks
 class MockCircuitRepository extends Mock implements CircuitRepository {}
 
+class MockDeviceRepository extends Mock implements DeviceRepository {}
+
+class MockUpdateCircuitUseCase extends Mock implements UpdateCircuitUseCase {}
+
 void main() {
   late InsertDeviceBetweenCircuitUseCase useCase;
   late MockCircuitRepository mockCircuitRepository;
+  late MockDeviceRepository mockDeviceRepository;
+  late MockUpdateCircuitUseCase mockUpdateCircuitUseCase;
 
   setUpAll(() {
     registerFallbackValue(
@@ -24,12 +30,17 @@ void main() {
       ),
     );
     registerFallbackValue(CircuitHandle('fallback'));
+    registerFallbackValue(DeviceHandle('fallback'));
   });
 
   setUp(() {
     mockCircuitRepository = MockCircuitRepository();
+    mockDeviceRepository = MockDeviceRepository();
+    mockUpdateCircuitUseCase = MockUpdateCircuitUseCase();
     useCase = InsertDeviceBetweenCircuitUseCase(
       circuitRepository: mockCircuitRepository,
+      deviceRepository: mockDeviceRepository,
+      updateCircuitUseCase: mockUpdateCircuitUseCase,
     );
   });
 
@@ -41,9 +52,36 @@ void main() {
       manufacturer: manufacturer,
     );
     final sourceDevice = Device(deviceSpecification: deviceSpec);
-    final device1 = Device(deviceSpecification: deviceSpec);
-    final device2 = Device(deviceSpecification: deviceSpec);
-    final newDevice = Device(deviceSpecification: deviceSpec);
+    final device1Handle = DeviceHandle('dev-1');
+    final device2Handle = DeviceHandle('dev-2');
+    final newDeviceHandle = DeviceHandle('dev-3');
+
+    final device1 = Device(
+      handle: device1Handle,
+      deviceSpecification: deviceSpec,
+    );
+    final device2 = Device(
+      handle: device2Handle,
+      deviceSpecification: deviceSpec,
+    );
+    final newDevice = Device(
+      handle: newDeviceHandle,
+      deviceSpecification: deviceSpec,
+    );
+
+    final device1WithHandle = DeviceWithHandle(
+      handle: device1Handle,
+      device: device1,
+    );
+    final device2WithHandle = DeviceWithHandle(
+      handle: device2Handle,
+      device: device2,
+    );
+    final newDeviceWithHandle = DeviceWithHandle(
+      handle: newDeviceHandle,
+      device: newDevice,
+    );
+
     final circuit = Circuit(
       sourceDevice: sourceDevice,
       connectedDevices: [device1, device2],
@@ -64,8 +102,17 @@ void main() {
           circuit: updatedCircuit,
         );
         when(
-          () => mockCircuitRepository.update(
-            item: any(named: 'item'),
+          () => mockDeviceRepository.getByHandle(handle: device1Handle),
+        ).thenReturn(TaskEither.right(device1WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: device2Handle),
+        ).thenReturn(TaskEither.right(device2WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: newDeviceHandle),
+        ).thenReturn(TaskEither.right(newDeviceWithHandle));
+        when(
+          () => mockUpdateCircuitUseCase.call(
+            circuit: any(named: 'circuit'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.right(updatedCircuitWithHandle));
@@ -74,9 +121,9 @@ void main() {
         final result = await useCase
             .call(
               circuit: circuitWithHandle,
-              device1: device1,
-              device2: device2,
-              newDevice: newDevice,
+              device1Handle: device1Handle,
+              device2Handle: device2Handle,
+              newDeviceHandle: newDeviceHandle,
             )
             .run();
 
@@ -86,15 +133,13 @@ void main() {
           (unit) => expect(unit, equals(unit)),
         );
         verify(
-          () => mockCircuitRepository.update(
-            item: any(
-              named: 'item',
-              that: predicate<Circuit>(
-                (c) => c.connectedDevices.contains(newDevice),
-              ),
-            ),
-            handle: circuitWithHandle.handle,
-          ),
+          () => mockDeviceRepository.getByHandle(handle: device1Handle),
+        ).called(1);
+        verify(
+          () => mockDeviceRepository.getByHandle(handle: device2Handle),
+        ).called(1);
+        verify(
+          () => mockDeviceRepository.getByHandle(handle: newDeviceHandle),
         ).called(1);
       });
     });
@@ -102,18 +147,28 @@ void main() {
     group('When devices are not found in circuit', () {
       test('Then it returns validation failure', () async {
         // Arrange
+        when(
+          () => mockDeviceRepository.getByHandle(handle: device1Handle),
+        ).thenReturn(TaskEither.right(device1WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: device2Handle),
+        ).thenReturn(TaskEither.right(device2WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: newDeviceHandle),
+        ).thenReturn(TaskEither.right(newDeviceWithHandle));
+
         final otherDevice = Device(deviceSpecification: deviceSpec);
-        final circuitWithoutDevices = circuitWithHandle.copyWith(
+        final circuitWithOther = circuitWithHandle.copyWith(
           circuit: circuit.copyWith(connectedDevices: [otherDevice]),
         );
 
         // Act
         final result = await useCase
             .call(
-              circuit: circuitWithoutDevices,
-              device1: device1,
-              device2: device2,
-              newDevice: newDevice,
+              circuit: circuitWithOther,
+              device1Handle: device1Handle,
+              device2Handle: device2Handle,
+              newDeviceHandle: newDeviceHandle,
             )
             .run();
 
@@ -128,23 +183,30 @@ void main() {
     group('When devices are not consecutive', () {
       test('Then it returns validation failure', () async {
         // Arrange
-        final circuitWithGap = circuitWithHandle.copyWith(
+        when(
+          () => mockDeviceRepository.getByHandle(handle: device1Handle),
+        ).thenReturn(TaskEither.right(device1WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: device2Handle),
+        ).thenReturn(TaskEither.right(device2WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: newDeviceHandle),
+        ).thenReturn(TaskEither.right(newDeviceWithHandle));
+
+        final otherDevice = Device(deviceSpecification: deviceSpec);
+        final circuitWithOther = circuitWithHandle.copyWith(
           circuit: circuit.copyWith(
-            connectedDevices: [
-              device1,
-              Device(deviceSpecification: deviceSpec),
-              device2,
-            ],
+            connectedDevices: [device1, otherDevice, device2],
           ),
         );
 
         // Act
         final result = await useCase
             .call(
-              circuit: circuitWithGap,
-              device1: device1,
-              device2: device2,
-              newDevice: newDevice,
+              circuit: circuitWithOther,
+              device1Handle: device1Handle,
+              device2Handle: device2Handle,
+              newDeviceHandle: newDeviceHandle,
             )
             .run();
 
@@ -161,8 +223,17 @@ void main() {
         // Arrange
         final failure = DatastoreFailure('Update failed');
         when(
-          () => mockCircuitRepository.update(
-            item: any(named: 'item'),
+          () => mockDeviceRepository.getByHandle(handle: device1Handle),
+        ).thenReturn(TaskEither.right(device1WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: device2Handle),
+        ).thenReturn(TaskEither.right(device2WithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: newDeviceHandle),
+        ).thenReturn(TaskEither.right(newDeviceWithHandle));
+        when(
+          () => mockUpdateCircuitUseCase.call(
+            circuit: any(named: 'circuit'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.left(failure));
@@ -171,9 +242,9 @@ void main() {
         final result = await useCase
             .call(
               circuit: circuitWithHandle,
-              device1: device1,
-              device2: device2,
-              newDevice: newDevice,
+              device1Handle: device1Handle,
+              device2Handle: device2Handle,
+              newDeviceHandle: newDeviceHandle,
             )
             .run();
 

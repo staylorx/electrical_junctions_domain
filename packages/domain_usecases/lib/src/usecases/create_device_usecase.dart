@@ -3,17 +3,21 @@ import 'package:fpdart/fpdart.dart';
 
 /// Creates a new device and saves it to the repository.
 ///
-/// This use case handles device creation by directly instantiating the Device
-/// entity with the provided specification. Device type validation is handled
-/// by ensuring a valid DeviceSpecification is provided.
+/// Following the UseCase standard, this accepts:
+/// - Simple business parameters for the entity being created (name)
+/// - The DeviceSpecification value object (required for device definition)
+/// - A handle for related persisted entities (locateHandle)
 class CreateDeviceUseCase {
   final DeviceRepository _deviceRepository;
+  final LocateRepository _locateRepository;
   final HandleGenerator _handleGenerator;
 
   CreateDeviceUseCase({
     required DeviceRepository deviceRepository,
+    required LocateRepository locateRepository,
     required HandleGenerator handleGenerator,
   }) : _deviceRepository = deviceRepository,
+       _locateRepository = locateRepository,
        _handleGenerator = handleGenerator;
 
   /// Creates and saves a device
@@ -22,13 +26,27 @@ class CreateDeviceUseCase {
   TaskEither<Failure, Device> call({
     String? name,
     required DeviceSpecification deviceSpecification,
-    Locate? locate,
+    LocateHandle? locateHandle,
   }) {
-    return _createDevice(
-      name: name,
-      deviceSpecification: deviceSpecification,
-      locate: locate,
-    ).flatMap((device) => _saveDevice(device: device));
+    // If no locate handle, create device without location
+    if (locateHandle == null) {
+      return _createDevice(
+        name: name,
+        deviceSpecification: deviceSpecification,
+        locate: null,
+      ).flatMap((device) => _saveDevice(device: device));
+    }
+
+    // Fetch the locate and then create the device with it
+    return _locateRepository.getByHandle(handle: locateHandle).flatMap((
+      locateWithHandle,
+    ) {
+      return _createDevice(
+        name: name,
+        deviceSpecification: deviceSpecification,
+        locate: locateWithHandle.locate,
+      ).flatMap((device) => _saveDevice(device: device));
+    });
   }
 
   /// Creates a device instance directly

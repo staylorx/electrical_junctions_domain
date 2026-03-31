@@ -74,7 +74,7 @@ void main() {
         // Should
         result.fold(
           (_) => fail('Expected right'),
-          (r) => r.should.be(updatedCircuit),
+          (r) => r.should.be(circuitWithHandle),
         );
         verify(
           () => mockCircuitRepository.update(

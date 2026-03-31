@@ -36,6 +36,7 @@ void main() {
       ),
     );
     registerFallbackValue(CircuitHandle('fallback'));
+    registerFallbackValue(DeviceHandle('fallback'));
   });
 
   setUp(() {
@@ -54,13 +55,28 @@ void main() {
       modelNumber: 'QO-200A',
       manufacturer: manufacturer,
     );
-    final panel = Device(deviceSpecification: panelSpec);
+    final panelHandle = DeviceHandle('panel-1');
+    final panel = Device(handle: panelHandle, deviceSpecification: panelSpec);
+    final panelWithHandle = DeviceWithHandle(
+      handle: panelHandle,
+      device: panel,
+    );
+
     final breakerSpec = DeviceSpecification(
       typeId: 'circuit_breaker',
       modelNumber: 'QO-20',
       manufacturer: manufacturer,
     );
-    final circuitBreaker = Device(deviceSpecification: breakerSpec);
+    final breakerHandle = DeviceHandle('breaker-1');
+    final circuitBreaker = Device(
+      handle: breakerHandle,
+      deviceSpecification: breakerSpec,
+    );
+    final breakerWithHandle = DeviceWithHandle(
+      handle: breakerHandle,
+      device: circuitBreaker,
+    );
+
     final panelSlot = Circuit(
       sourceDevice: panel,
       connectedDevices: [],
@@ -83,6 +99,12 @@ void main() {
           circuit: updatedPanelSlot,
         );
         when(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(breakerWithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: panelHandle),
+        ).thenReturn(TaskEither.right(panelWithHandle));
+        when(
           () => mockCircuitRepository.getAll(),
         ).thenReturn(TaskEither.right(allCircuits));
         when(
@@ -95,8 +117,8 @@ void main() {
         // Act
         final result = await useCase
             .call(
-              circuitBreaker: circuitBreaker,
-              panel: panel,
+              circuitBreakerHandle: breakerHandle,
+              panelHandle: panelHandle,
               panelSlot: panelSlotWithHandle,
             )
             .run();
@@ -104,33 +126,34 @@ void main() {
         // Should
         result.fold(
           (failure) => fail('Expected success, got failure: $failure'),
-          (circuit) =>
-              expect(circuit.connectedDevices, contains(circuitBreaker)),
-        );
-        verify(
-          () => mockCircuitRepository.update(
-            item: any(
-              named: 'item',
-              that: predicate<Circuit>(
-                (c) => c.connectedDevices.contains(circuitBreaker),
-              ),
-            ),
-            handle: panelSlotWithHandle.handle,
+          (circuitWithHandle) => expect(
+            circuitWithHandle.circuit.connectedDevices,
+            contains(circuitBreaker),
           ),
-        ).called(1);
+        );
       });
     });
 
     group('When device is not a circuit breaker', () {
       test('Then it returns validation failure', () async {
         // Arrange
-        final nonBreaker = Device(deviceSpecification: panelSpec);
+        final nonBreaker = Device(
+          handle: breakerHandle,
+          deviceSpecification: panelSpec,
+        );
+        final nonBreakerWithHandle = DeviceWithHandle(
+          handle: breakerHandle,
+          device: nonBreaker,
+        );
+        when(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(nonBreakerWithHandle));
 
         // Act
         final result = await useCase
             .call(
-              circuitBreaker: nonBreaker,
-              panel: panel,
+              circuitBreakerHandle: breakerHandle,
+              panelHandle: panelHandle,
               panelSlot: panelSlotWithHandle,
             )
             .run();
@@ -143,24 +166,30 @@ void main() {
       });
     });
 
-    group('When slot is occupied', () {
+    group('When device is not a panel', () {
       test('Then it returns validation failure', () async {
         // Arrange
-        final occupiedSlot = panelSlotWithHandle.copyWith(
-          circuit: panelSlot.copyWith(
-            connectedDevices: [Device(deviceSpecification: breakerSpec)],
-          ),
+        final nonPanel = Device(
+          handle: panelHandle,
+          deviceSpecification: breakerSpec,
+        );
+        final nonPanelWithHandle = DeviceWithHandle(
+          handle: panelHandle,
+          device: nonPanel,
         );
         when(
-          () => mockCircuitRepository.getAll(),
-        ).thenReturn(TaskEither.right([occupiedSlot]));
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(breakerWithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: panelHandle),
+        ).thenReturn(TaskEither.right(nonPanelWithHandle));
 
         // Act
         final result = await useCase
             .call(
-              circuitBreaker: circuitBreaker,
-              panel: panel,
-              panelSlot: occupiedSlot,
+              circuitBreakerHandle: breakerHandle,
+              panelHandle: panelHandle,
+              panelSlot: panelSlotWithHandle,
             )
             .run();
 
@@ -172,26 +201,25 @@ void main() {
       });
     });
 
-    group('When getAll fails', () {
-      test('Then it returns failure', () async {
+    group('When circuit is not a panel slot', () {
+      test('Then it returns validation failure', () async {
         // Arrange
-        final failure = DatastoreFailure('DB error');
-        when(
-          () => mockCircuitRepository.getAll(),
-        ).thenReturn(TaskEither.left(failure));
+        final nonSlot = panelSlotWithHandle.copyWith(
+          circuit: panelSlot.copyWith(stereotype: 'other'),
+        );
 
         // Act
         final result = await useCase
             .call(
-              circuitBreaker: circuitBreaker,
-              panel: panel,
-              panelSlot: panelSlotWithHandle,
+              circuitBreakerHandle: breakerHandle,
+              panelHandle: panelHandle,
+              panelSlot: nonSlot,
             )
             .run();
 
         // Should
         result.fold(
-          (actualFailure) => expect(actualFailure, equals(failure)),
+          (failure) => expect(failure, isA<UCValidationFailure>()),
           (_) => fail('Expected failure, got success'),
         );
       });

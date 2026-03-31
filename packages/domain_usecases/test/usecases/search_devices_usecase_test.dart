@@ -6,9 +6,16 @@ import 'package:fpdart/fpdart.dart';
 // Generate mocks
 class MockDeviceRepository extends Mock implements DeviceRepository {}
 
+class MockManufacturerRepository extends Mock
+    implements ManufacturerRepository {}
+
+class MockLocateRepository extends Mock implements LocateRepository {}
+
 void main() {
   late SearchDevicesUseCase useCase;
   late MockDeviceRepository mockDeviceRepository;
+  late MockManufacturerRepository mockManufacturerRepository;
+  late MockLocateRepository mockLocateRepository;
 
   setUpAll(() {
     registerFallbackValue(
@@ -20,11 +27,19 @@ void main() {
         ),
       ),
     );
+    registerFallbackValue(ManufacturerHandle('fallback'));
+    registerFallbackValue(LocateHandle('fallback'));
   });
 
   setUp(() {
     mockDeviceRepository = MockDeviceRepository();
-    useCase = SearchDevicesUseCase(deviceRepository: mockDeviceRepository);
+    mockManufacturerRepository = MockManufacturerRepository();
+    mockLocateRepository = MockLocateRepository();
+    useCase = SearchDevicesUseCase(
+      deviceRepository: mockDeviceRepository,
+      manufacturerRepository: mockManufacturerRepository,
+      locateRepository: mockLocateRepository,
+    );
   });
 
   group('Given a SearchDevicesUseCase', () {

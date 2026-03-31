@@ -6,9 +6,12 @@ import 'package:fpdart/fpdart.dart';
 // Generate mocks
 class MockCircuitRepository extends Mock implements CircuitRepository {}
 
+class MockDeviceRepository extends Mock implements DeviceRepository {}
+
 void main() {
   late InstallCircuitBreakerUseCase useCase;
   late MockCircuitRepository mockCircuitRepository;
+  late MockDeviceRepository mockDeviceRepository;
 
   setUpAll(() {
     registerFallbackValue(
@@ -33,12 +36,15 @@ void main() {
       ),
     );
     registerFallbackValue(CircuitHandle('fallback'));
+    registerFallbackValue(DeviceHandle('fallback'));
   });
 
   setUp(() {
     mockCircuitRepository = MockCircuitRepository();
+    mockDeviceRepository = MockDeviceRepository();
     useCase = InstallCircuitBreakerUseCase(
       circuitRepository: mockCircuitRepository,
+      deviceRepository: mockDeviceRepository,
     );
   });
 
@@ -55,7 +61,11 @@ void main() {
       modelNumber: 'QO-20',
       manufacturer: manufacturer,
     );
-    final circuitBreaker = Device(deviceSpecification: breakerSpec);
+    final breakerHandle = DeviceHandle('breaker-1');
+    final circuitBreaker = Device(
+      handle: breakerHandle,
+      deviceSpecification: breakerSpec,
+    );
     final panelSlot = Circuit(
       sourceDevice: panel,
       connectedDevices: [],
@@ -84,12 +94,19 @@ void main() {
           handle: panelSlotWithHandle.handle,
           circuit: updatedPanelSlot,
         );
+        final breakerWithHandle = DeviceWithHandle(
+          handle: breakerHandle,
+          device: circuitBreaker,
+        );
         when(
           () => mockCircuitRepository.update(
             item: any(named: 'item'),
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.right(updatedPanelSlotWithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(breakerWithHandle));
         when(
           () => mockCircuitRepository.create(item: any(named: 'item')),
         ).thenReturn(TaskEither.right(newCircuitWithHandle));
@@ -105,7 +122,10 @@ void main() {
         // Should
         result.fold(
           (failure) => fail('Expected success, got failure: $failure'),
-          (circuit) => expect(circuit.sourceDevice, equals(circuitBreaker)),
+          (circuitWithHandle) => expect(
+            circuitWithHandle.circuit.sourceDevice,
+            equals(circuitBreaker),
+          ),
         );
         verify(
           () => mockCircuitRepository.update(
@@ -117,6 +137,9 @@ void main() {
             ),
             handle: panelSlotWithHandle.handle,
           ),
+        ).called(1);
+        verify(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
         ).called(1);
         verify(
           () => mockCircuitRepository.create(
@@ -226,6 +249,10 @@ void main() {
           handle: panelSlotWithHandle.handle,
           circuit: updatedPanelSlot,
         );
+        final breakerWithHandle = DeviceWithHandle(
+          handle: breakerHandle,
+          device: circuitBreaker,
+        );
         final failure = DatastoreFailure('Create failed');
         when(
           () => mockCircuitRepository.update(
@@ -233,6 +260,9 @@ void main() {
             handle: any(named: 'handle'),
           ),
         ).thenReturn(TaskEither.right(updatedPanelSlotWithHandle));
+        when(
+          () => mockDeviceRepository.getByHandle(handle: breakerHandle),
+        ).thenReturn(TaskEither.right(breakerWithHandle));
         when(
           () => mockCircuitRepository.create(item: any(named: 'item')),
         ).thenReturn(TaskEither.left(failure));
